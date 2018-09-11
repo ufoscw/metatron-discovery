@@ -233,6 +233,7 @@ polaris:
     defaultResultSize: 1000
     maxResultSize: 100000
     maxFetchSize: 10000
+    explicitResultSize: 0
     tempHdfsPath: /tmp/hive
     tempCSVPath: /tmp
 ---

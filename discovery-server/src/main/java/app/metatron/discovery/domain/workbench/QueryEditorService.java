@@ -262,16 +262,25 @@ public class QueryEditorService {
       dataSourceInfo.setQueryStatus(QueryStatus.RUNNING);
       dataSourceInfo.setCurrentStatement(stmt);
 
-      int maxRows = 0;
-      int defaultResultSize = workbenchProperties.getDefaultResultSize();
-      int maxResultSize = workbenchProperties.getMaxResultSize();
-      if(numRows <= 0){
-        maxRows = workbenchProperties.getDefaultResultSize();
-      } else if(numRows <= workbenchProperties.getMaxResultSize()){
+      int maxRows;
+      Integer defaultResultSize = workbenchProperties.getDefaultResultSize();
+      Integer maxResultSize = workbenchProperties.getMaxResultSize();
+      Integer explicitResultSize = workbenchProperties.getExplicitResultSize();
+
+      // if when explicitResultSize defined, always query executed with explicitResultSize
+      //maxRows parameter priority (explicitResultSize -> numRows -> maxResultSize -> defaultResultSize)
+      if(explicitResultSize != null && explicitResultSize > 0){
+        maxRows = explicitResultSize;
+      } else if(numRows > 0 && numRows <= maxResultSize){
         maxRows = numRows;
+      } else if(numRows > 0 && numRows > maxResultSize){
+        maxRows = maxResultSize;
       } else {
-        maxRows = workbenchProperties.getMaxResultSize();
+        maxRows = defaultResultSize;
       }
+      LOGGER.debug("numRows: {}, defaultResultSize : {}, explicitResultSize : {}, maxResultSize : {}",
+              numRows, defaultResultSize, explicitResultSize, maxResultSize);
+      LOGGER.debug("maxRows : {}", maxRows);
       stmt.setMaxRows(maxRows);
 
       if(saveToTempTable && isSelectQuery(query) && !isTempTable(query)){
@@ -300,6 +309,7 @@ public class QueryEditorService {
         if(stmt.execute(query)){
           resultSet = stmt.getResultSet();
           queryResult = getQueryResult(resultSet, query, null, jdbcDataConnection);
+          queryResult.setExplicitResultSize(explicitResultSize);
         } else {
           queryResult = createMessageResult("OK", query, QueryResult.QueryResultStatus.SUCCESS);
         }

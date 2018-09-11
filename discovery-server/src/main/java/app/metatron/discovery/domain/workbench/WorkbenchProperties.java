@@ -20,8 +20,16 @@ import org.springframework.stereotype.Component;
 @Component
 @ConfigurationProperties(prefix = "polaris.workbench")
 public class WorkbenchProperties {
-  private Integer maxResultSize = 100000;
+
+  //default result size
   private Integer defaultResultSize = 1000;
+
+  //max result size
+  private Integer maxResultSize = 100000;
+
+  //explicit result size
+  private Integer explicitResultSize = 0;
+
   private Integer maxFetchSize = 10000;
   private String tempHdfsPath = "/tmp/hive";
   private String tempCSVPath = "/tmp";
@@ -29,12 +37,28 @@ public class WorkbenchProperties {
   public static String TEMP_SCHEMA_PREFIX = "temp_";
   public static String TEMP_TABLE_PREFIX = "wb_";
 
+  public Integer getDefaultResultSize() {
+    return defaultResultSize;
+  }
+
+  public void setDefaultResultSize(Integer defaultResultSize) {
+    this.defaultResultSize = defaultResultSize;
+  }
+
   public Integer getMaxResultSize() {
     return maxResultSize;
   }
 
   public void setMaxResultSize(Integer maxResultSize) {
     this.maxResultSize = maxResultSize;
+  }
+
+  public Integer getExplicitResultSize() {
+    return explicitResultSize;
+  }
+
+  public void setExplicitResultSize(Integer explicitResultSize) {
+    this.explicitResultSize = explicitResultSize;
   }
 
   public Integer getMaxFetchSize() {
@@ -59,13 +83,5 @@ public class WorkbenchProperties {
 
   public void setTempCSVPath(String tempCSVPath) {
     this.tempCSVPath = tempCSVPath;
-  }
-
-  public Integer getDefaultResultSize() {
-    return defaultResultSize;
-  }
-
-  public void setDefaultResultSize(Integer defaultResultSize) {
-    this.defaultResultSize = defaultResultSize;
   }
 }
