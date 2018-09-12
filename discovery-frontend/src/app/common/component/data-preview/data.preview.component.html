@@ -276,7 +276,7 @@
                     </tr>
                   </thead>
                   <tbody>
-                  <tr [ngClass]="{'ddp-selected' : selectedField && selectedField.name === field.name}" *ngFor="let field of getColumnList(source.fields)"
+                  <tr [ngClass]="{'ddp-selected' : selectedField && (selectedField.name === field.name && selectedField.dsId === field.dsId)}" *ngFor="let field of getColumnList(source.fields)"
                       (click)="onSelectedField(field, source)">
                     <!-- physical column -->
                     <td>
