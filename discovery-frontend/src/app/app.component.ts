@@ -34,7 +34,7 @@ import { EventBroadcaster } from './common/event/event.broadcaster';
 })
 export class AppComponent {
 
-  public isLoggedIn:boolean = false;
+  public isLoggedIn: boolean = false;
   public routerLoading: boolean = false;
 
   // Change Detect
@@ -58,10 +58,10 @@ export class AppComponent {
     // 다국어 언어 설정
     if (!this.translateService.getDefaultLang()) {
       // TODO 다국어 언어설정 index.html 과 동일한 언어를 설정
-      const browserLang = translateService.getBrowserLang();
-      // this.translateService.setDefaultLang('ko');
+      const browserLang = translateService.getBrowserCultureLang();
+      this.translateService.setDefaultLang('ko');
       // 브라우저 언어에 따라 메세지 선택
-      this.translateService.use(browserLang.match(/en/) ? 'en' : 'ko');
+      this.translateService.use(browserLang.match(/en/) ? 'en' : browserLang);
     }
     router.events.subscribe((event: RouterEvent) => {
       this.navigationInterceptor(event);
