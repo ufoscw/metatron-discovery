@@ -203,6 +203,15 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
       layer = this.cartoDarkLayer;
     }
 
+    let drawFinished = this.drawFinished;
+    // layer.getSource().on('tileloadend', function(event) {
+    //   drawFinished.emit();
+    // });
+
+    layer.on('render', function(event) {
+      drawFinished.emit();
+    });
+
     this.olmap = new ol.Map({
       view: new ol.View({
         center: [126, 37],
@@ -336,6 +345,8 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
       let lineDash = [1];
       if(lineDashType === 'DOT') {
         lineDash = [4,4];
+      } else if(lineDashType === 'DASH') {
+        lineDash = [4,8];
       }
 
       let featureSize = 5;
@@ -393,7 +404,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
 
       } else if(featureColorType === 'DIMENSION') {
         let colorList = ChartColorList[featureColor];
-        featureColor = colorList[Math.floor(Math.random() * (colorList.length-1)) + 1];
+        featureColor = colorList[(parseInt(feature.getId().substring(26)) % colorList.length) - 1];
       } else if(featureColorType === 'NONE') {
         featureColor = styleOption.layers[layerNum].color.schema;
       }
@@ -408,8 +419,8 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
             })
         }),
         stroke: new ol.style.Stroke({
-          color: 'black',
-          width: 2
+          color: featureColor,
+          width: lineThickness
         }),
         fill: new ol.style.Fill({
           color: featureColor
@@ -574,8 +585,8 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
    */
   public hexagonStyleFunction = (layerNum, data) => {
 
-    let styleOption = this.uiOption;
     let styleData = data[layerNum];
+    let styleOption = this.uiOption;
 
     function hexToRgbA(hex, alpha): string{
       var c;
@@ -1247,11 +1258,11 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
         heatmapLayer.setVisible(false);
         hexagonLayer.setVisible(true);
         textLayer.setVisible(false);
-      } else if(this.uiOption.layers[0].type === "polygon") {
+      } else if(this.uiOption.layers[0].type === "polygon" || this.uiOption.layers[0].type === "line") {
         symbolLayer.setVisible(true);
         clusterLayer.setVisible(false);
         heatmapLayer.setVisible(false);
-        hexagonLayer.setVisible(false );
+        hexagonLayer.setVisible(false);
         textLayer.setVisible(false);
       }
 
@@ -1309,7 +1320,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
         heatmapLayer.setVisible(false);
         hexagonLayer.setVisible(true);
         textLayer.setVisible(false);
-      } else if(this.uiOption.layers[0].type === "polygon") {
+      } else if(this.uiOption.layers[0].type === "polygon" || this.uiOption.layers[0].type === "line") {
         symbolLayer.setVisible(true);
         clusterLayer.setVisible(false);
         heatmapLayer.setVisible(false);
@@ -1346,7 +1357,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
     this.apply();
 
     // 완료
-    this.drawFinished.emit();
+    // this.drawFinished.emit();
   }
 
   public legendRender(): void {
@@ -1407,7 +1418,8 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
             } else if(this.uiOption.layers[i].color["by"] === 'MEASURE') {
               legendHtml = '<div class="ddp-ui-layer">' +
                   '<span class="ddp-label">' + this.uiOption.layers[i].name + '</span>' +
-                  '<span class="ddp-data">' + this.uiOption.layers[i].type + ' by ' + this.uiOption.layers[i].color.column + '</span>' +
+                  '<span class="ddp-data">' + this.uiOption.layers[i].type.charAt(0).toUpperCase() + this.uiOption.layers[i].type.slice(1) + ' Color</span>' +
+                  '<span class="ddp-data">' + 'By ' + this.uiOption.layers[i].color.column + '</span>' +
                   '<ul class="ddp-list-remark">';
 
                   if(this.uiOption.layers[i].color["ranges"]) {
@@ -1510,15 +1522,19 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
         let pointerX = coords[0].toFixed(4);
         let pointerY = coords[1].toFixed(4);
 
-        if(geomType === 'Point') {
+        if(geomType === 'Point' || geomType === 'LineString') {
           coords = feature.getGeometry().getCoordinates();
         } else {
           let extent = feature.getGeometry().getExtent();
           coords = ol.extent.getCenter(extent);
         }
 
-        pointerX = coords[0].toFixed(4);
-        pointerY = coords[1].toFixed(4);
+        let geoInfo;
+        if(geomType === 'LineString') {
+          geoInfo = '<tr><th>Geo info</th><td>'+ coords[0] + '</td></tr>' + '<tr><th></th><td>'+ coords[coords.length-1] +'</td></tr>';
+        } else {
+          geoInfo = '<tr><th>Geo info</th><td>'+ coords[0].toFixed(4) + ', ' +coords[1].toFixed(4) + '</td></tr>';
+        }
 
         let tooltipHtml = '<div class="ddp-ui-tooltip-info ddp-map-tooltip" style="display:block; position:absolute; top:0; left:0; z-index:99999;">' +
         '<span class="ddp-txt-tooltip">';
@@ -1539,7 +1555,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
 
         //Coordinates info (LOCATION_INFO)
         if(tooltipOption.toolTip["displayTypes"] != undefined && tooltipOption.toolTip.displayTypes[18] !== null) {
-          tooltipHtml = tooltipHtml + '<tr><th>Geo info</th><td>'+ pointerX + ', ' + pointerY + '</td></tr>';
+          tooltipHtml = tooltipHtml + geoInfo;
         }
 
         //Properties (DATA_VALUE)
@@ -1577,7 +1593,14 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
         tooltipHtml = tooltipHtml + '</tbody></table></span></div>';
 
         content.innerHTML = tooltipHtml;
-        popup.setPosition(coords);
+
+        if(geomType === 'LineString') {
+          let extent = feature.getGeometry().getExtent();
+          coords = ol.extent.getCenter(extent);
+          popup.setPosition(coords);
+        } else {
+          popup.setPosition(coords);
+        }
 
       } else {
         popup.setPosition(undefined);
@@ -1845,7 +1868,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
     this.legendRender();
 
     // 완료
-    this.drawFinished.emit();
+    // this.drawFinished.emit();
   }
 
   /**
@@ -2108,7 +2131,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
     this.legendRender();
 
     // 완료
-    this.drawFinished.emit();
+    // this.drawFinished.emit();
   }
 
   /**
@@ -2129,7 +2152,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
     }
 
     // 완료
-    this.drawFinished.emit();
+    // this.drawFinished.emit();
   }
 
   /**
@@ -2150,7 +2173,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
     }
 
     // 완료
-    this.drawFinished.emit();
+    // this.drawFinished.emit();
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

@@ -3761,6 +3761,13 @@ em.ddp-icon-line-curve,.ddp-list-express em.ddp-icon-cross
 .ddp-list-express em.ddp-line-bold2 {height:2px; margin-top:-1px;}
 .ddp-list-express em.ddp-line-bold3 {height:3px; margin-top:-2px;}
 
+.ddp-list-express em.ddp-line-dotted,
+.ddp-list-express em.ddp-line-dashed {display:inline-block; position:absolute; top:50%; left:50%; background:url(../images/icon_presentation2_map.png) no-repeat;}
+.ddp-list-express em.ddp-line-dotted {width:14px; height:2px; margin:-1px 0 0 -7px;}
+.ddp-list-express em.ddp-line-dashed {width:16px; height:3px; margin:-1px 0 0 -8px; background-position:left -3px;}
+.ddp-list-express li.ddp-selected em.ddp-line-dotted {background-position-x:-15px;}
+.ddp-list-express li.ddp-selected em.ddp-line-dashed {background-position-x:-17px;}
+
 .ddp-list-express li.ddp-selected [class*="ddp-line-bold"] {background-color:#fff;}
 .ddp-list-express li.ddp-selected em.ddp-icon-font-bold {background-position:0px -179px !important;}
 .ddp-list-express li.ddp-selected em.ddp-icon-font-italic {background-position:0px -189px !important;}
@@ -8215,7 +8222,10 @@ em.ddp-icon-mapview3-w:before {background-position-x:0;}
 .ddp-ui-shelf em.ddp-icon-mapview1:before,
 .ddp-ui-shelf em.ddp-icon-mapview2:before,
 .ddp-ui-shelf em.ddp-icon-mapview3:before {position:absolute; top:50%; left:50%; margin:-8px 0 0 -9px;}
-.ddp-map-tooltip  {padding:9px;}
+
+.ddp-map-tooltip  {max-width:257px; padding:9px; box-sizing:border-box;}
+/* .ddp-map-tooltip .ddp-table-info {table-layout:fixed; } */
+.ddp-map-tooltip .ddp-table-info tr td {white-space:nowrap; text-overflow:ellipsis; overflow:hidden;}
 .ddp-map-tooltip .ddp-label {display:block; padding-bottom:6px; color:#fff; font-size:16px; font-weight:bold; vertical-align:Middle;}
 .ddp-map-tooltip .ddp-label [class*="ddp-icon-mapview"] {margin-right:5px;}
 .ddp-table-info {width:100%;}

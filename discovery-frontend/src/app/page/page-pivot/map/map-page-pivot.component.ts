@@ -110,6 +110,10 @@ export class MapPagePivotComponent extends PagePivotComponent implements OnInit,
     */
    public changePivot(eventType?: EventType) {
 
+     this.pivot.columns = this.pivot.columns.map(this.checkAliasMap);
+     this.pivot.rows = this.pivot.rows.map(this.checkAliasMap);
+     this.pivot.aggregations = this.pivot.aggregations.map(this.checkAliasMap);
+
      let measureList = new Array(new Array(), new Array(), new Array());
 
      for(let aggregation of this.pivot.aggregations) {
@@ -332,5 +336,18 @@ export class MapPagePivotComponent extends PagePivotComponent implements OnInit,
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+   private checkAliasMap(field: AbstractField) {
 
+     if (['measure', 'calculated'].indexOf(field.type) > -1) {
+       // TODO 계산식인경우 field.aggregated 여부에 따라 기본값 세팅
+       if (field.type === 'calculated') {
+         console.info('TODO 계산식인경우 field.aggregated 여부에 따라 기본값 세팅');
+       }
+       const aggType = _.isUndefined(field.aggregationType) ? 'SUM' : field.aggregationType;
+       // field.alias = `${aggType}(${field.name})`;
+     }
+
+     // TODO 사용자 정의 alias가 있는 경우 처리
+     return field;
+   }
 }
