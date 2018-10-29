@@ -368,8 +368,6 @@ public class QueryEditorService {
       LOGGER.error("Query Execute Error : {}", e.getMessage());
       queryResult = createMessageResult(e.getMessage(), query, QueryResult.QueryResultStatus.FAIL);
     } finally {
-      sendWebSocketMessage(WorkbenchWebSocketController.WorkbenchWebSocketCommand.DONE, queryIndex, queryEditorId,
-              workbenchId, webSocketId);
       if (logThread != null) {
         if (!logThread.isInterrupted()) {
           logThread.interrupt();
@@ -382,6 +380,9 @@ public class QueryEditorService {
       //Query 실행 상태 IDLE로 전환
       dataSourceInfo.setQueryStatus(QueryStatus.IDLE);
       dataSourceInfo.setCurrentStatement(null);
+
+      sendWebSocketMessage(WorkbenchWebSocketController.WorkbenchWebSocketCommand.DONE, queryIndex, queryEditorId,
+              workbenchId, webSocketId);
 
       //종료시간
       DateTime finishDateTime = DateTime.now();
@@ -421,7 +422,7 @@ public class QueryEditorService {
     queryResult.setFields(fieldList);
     queryResult.setData(dataList);
     queryResult.setTempTable(tempTable);
-    queryResult.setNumRows(Long.valueOf(rowNumber));
+    queryResult.setNumRows(rowNumber <= 0 ? 0L : Long.valueOf(rowNumber - 1));
     queryResult.setQueryResultStatus(QueryResult.QueryResultStatus.SUCCESS);
     queryResult.setCsvFilePath(tempFileName);
     LOGGER.info("Query row count : {}", queryResult.getNumRows());
