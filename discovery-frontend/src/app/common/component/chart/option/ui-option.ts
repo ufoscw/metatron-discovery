@@ -66,6 +66,22 @@ export interface UIOption {
   // 툴팁
   toolTip?: UIChartTooltip;
 
+  ///////////////////////
+  ////// map options
+  ///////////////////////
+
+  layers?: UILayers[];
+
+  map?: string;
+
+  licenseNotation?: string;
+
+  showDistrictLayer?: boolean;
+
+  districtUnit?: string;
+
+  showMapLayer?: boolean;
+
   ////////////////////////////////////////////
   // UI 스펙
   ////////////////////////////////////////////
@@ -104,21 +120,6 @@ export interface UIOption {
 
   // TODO: 임시용 Split
   split?: UISplit;
-
-
-  layers?: UILayers[];
-
-  map?: string;
-
-  licenseNotation?: string;
-
-  showDistrictLayer?: boolean;
-
-  districtUnit?: string;
-
-  showMapLayer?: boolean;
-
-
 }
 
 export interface UISplit {

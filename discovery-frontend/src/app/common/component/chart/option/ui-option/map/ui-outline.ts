@@ -12,15 +12,21 @@
  * limitations under the License.
  */
 
-import { UIOption } from '../../ui-option';
 /**
- * 맵뷰 툴팁 화면 UI에 필요한 옵션
- * Version 2.0
+ * Outline of layer, outline 속성이 null 이거나 없는 경우 off 처리
  */
-export interface UITooltip {
+export interface MapOutline {
 
-  // tooltip
-  displayColumns?: string[];
+  // Color code of outline
+  color?: string;
 
-  displayTypes?: string[];
+  // Thickness outline
+  thickness?: string;
+
+  /////////////////
+  // only used in ui
+  /////////////////
+
+  lineDash?: string;
+
 }

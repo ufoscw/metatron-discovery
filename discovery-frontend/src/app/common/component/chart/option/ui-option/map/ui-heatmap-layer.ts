@@ -12,15 +12,18 @@
  * limitations under the License.
  */
 
-import { UIOption } from '../../ui-option';
 /**
- * 맵뷰 툴팁 화면 UI에 필요한 옵션
- * Version 2.0
+ * heatmap layer
  */
-export interface UITooltip {
+import { UILayers } from './ui-layers';
 
-  // tooltip
-  displayColumns?: string[];
+// TODO add extends UILayers later
+export interface UIHeatmapLayer {
+// export interface UIHeatmapLayer extends UILayers {
 
-  displayTypes?: string[];
+  // Blur value (0~100), default 20
+  blur?: number;
+
+  // Radius value (0~100), default 20
+  radius?: number;
 }
