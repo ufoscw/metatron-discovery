@@ -273,6 +273,15 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
    public mapLayerType(layerType: string): void {
      let geomType = this.uiOption.fielDimensionList[0].field.logicalType.toString();
 
+     if( this.index > 0 ) {
+       for(let field of this.uiOption.fielDimensionList) {
+         if(field["layerNum"] && field["layerNum"] === (this.index + 1)) {
+           geomType = field.field.logicalType.toString();
+           break;
+         }
+       }
+     }
+
      if(geomType === "GEO_POINT") {
        if(layerType === "symbol" || layerType === "heatmap" || layerType === "tile") {
          console.log("point");
@@ -788,6 +797,13 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
         }
       }
 
+    this.measureList = [];
+    for(let field of this.uiOption.fieldMeasureList) {
+      if(field["layerNum"] && field["layerNum"] === (this.index + 1)) {
+        this.measureList.push(field.alias.toString());
+      }
+    }
+
      // when color column is none or empty, set default column
      if (this.uiOption.layers && this.uiOption.layers.length > 0 &&
          'NONE' == this.uiOption.layers[this.index].color['column'] || !this.uiOption.layers[this.index].color['column']) {
@@ -1020,6 +1036,13 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
     this.size = this.uiOption.layers[this.index].size;
     this.outline = this.uiOption.layers[this.index].outline;
     this.clustering = this.uiOption.layers[this.index].clustering;
+
+    this.measureList = [];
+    for(let field of this.uiOption.fieldMeasureList) {
+      if(field["layerNum"] && field["layerNum"] === (this.index + 1)) {
+        this.measureList.push(field.alias.toString());
+      }
+    }
 
     if(this.color['customMode']) {
       this.rangesViewList = this.uiOption.layers[this.index].color['ranges'];
