@@ -38,7 +38,9 @@ export interface UILineLayer {
 /**
  * Thickness of line
  */
-interface UIThickness {
+// TODO remove export after refactoring
+export interface UIThickness {
+// interface UIThickness {
 
   // Color specification criteria
   by?: MapBy;
