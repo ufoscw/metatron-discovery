@@ -97,8 +97,6 @@ import { UICombineChart } from '../ui-option/ui-combine-chart';
 import { UIPieChart } from '../ui-option/ui-pie-chart';
 import { UIRadarChart } from '../ui-option/ui-radar-chart';
 
-import { UILayers } from '../ui-option/map/ui-layers';
-
 import { CustomSymbol } from '../../../../../domain/workbook/configurations/format';
 import { UIChartAxisLabel, UIChartAxisLabelCategory, UIChartAxisLabelValue } from '../ui-option/ui-axis';
 
@@ -2052,7 +2050,7 @@ export namespace OptionGenerator {
               "by": "NONE",
               "column": "NONE"
             },
-            thickness: {
+            thickness: <any>{
               "by": "NONE",
               "column": "NONE",
               "maxValue": 10
@@ -2083,7 +2081,7 @@ export namespace OptionGenerator {
               "by": "NONE",
               "column": "NONE"
             },
-            thickness: {
+            thickness: <any>{
               "by": "NONE",
               "column": "NONE",
               "maxValue": 10
