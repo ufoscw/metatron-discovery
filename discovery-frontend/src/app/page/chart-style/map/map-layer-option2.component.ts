@@ -124,6 +124,19 @@ export class MapLayerOptionComponent2 extends BaseOptionComponent implements OnI
 
   public tile: string = 'HEXAGON';
 
+  public blur: number = 10;
+
+  public radius:number = 10;
+
+  //tilemap type
+  public shape: string = "HEXAGON";
+
+  //tilemap coverage
+  public coverage: number = 8;
+
+  //linemap type
+  public pathType: string = "SOLID";
+
   public color: Object = {
     by: 'NONE',
     column: '',
@@ -134,14 +147,20 @@ export class MapLayerOptionComponent2 extends BaseOptionComponent implements OnI
 
   public size: Object = {
     by: 'NONE',
-    column: '',
-    max: 10
+    column: ''
   };
 
   public outline: Object = {
     color: this.selectedDefaultColor,
     thickness: 'NONE',
     lineDash: 'SOLID'
+  };
+
+  //라인 스타일
+  public thickness: Object = {
+    by: "NONE",
+    column: "NONE",
+    maxValue: 10
   };
 
   public measureList = [];
@@ -238,7 +257,7 @@ export class MapLayerOptionComponent2 extends BaseOptionComponent implements OnI
        let isNotGeoField: boolean = true;
        _.each(this.pivot.columns, (dimension) => {
          if( _.eq(field, dimension.name)
-           && _.eq(dimension.field.logicalType, "GEO_POINT") ) {
+           && (_.eq(dimension.field.logicalType, "GEO_POINT") || _.eq(dimension.field.logicalType, "GEO_LINE") || _.eq(dimension.field.logicalType, "GEO_POLYGON")) ) {
            isNotGeoField = false;
          }
        });
@@ -335,6 +354,9 @@ export class MapLayerOptionComponent2 extends BaseOptionComponent implements OnI
 
    // size type show hide 설정
    public sizeTypeFlag: boolean = false;
+
+   // thickness type show hide 설정
+   public thicknessTypeFlag: boolean = false;
 
    // size column show hide 설정
    public sizeColumnFlag: boolean = false;
@@ -445,7 +467,7 @@ export class MapLayerOptionComponent2 extends BaseOptionComponent implements OnI
     */
    public changeBlur(blur: number) {
 
-     this.color['blur'] = blur;
+     this.blur = blur;
 
      // 해당 레이어 타입으로 설정
      this.uiOption = <UIOption>_.extend({}, this.uiOption, {
@@ -463,7 +485,7 @@ export class MapLayerOptionComponent2 extends BaseOptionComponent implements OnI
     */
    public changeRadius(radius: number) {
 
-     this.color['radius'] = radius;
+     this.radius = radius;
 
      // 해당 레이어 타입으로 설정
      this.uiOption = <UIOption>_.extend({}, this.uiOption, {
@@ -479,12 +501,39 @@ export class MapLayerOptionComponent2 extends BaseOptionComponent implements OnI
     */
    public changeResolution(resolution: number) {
 
-     this.color['resolution'] = resolution;
+     let precision = 5;
+     switch (resolution) {
+      case 10:
+        precision = 5;
+        break;
+      case 9:
+        precision = 6;
+        break;
+      case 8:
+        precision = 7;
+        break;
+      case 7:
+        precision = 8;
+        break;
+      case 6:
+        precision = 9;
+        break;
+      case 5:
+        precision = 10;
+        break;
+      default:
+        precision = 5;
+     }
+
+     this.coverage = resolution;
 
      // 해당 레이어 타입으로 설정
      this.uiOption = <UIOption>_.extend({}, this.uiOption, {
        layers: this.changeLayerOption()
      });
+
+     //query할때 precision 값 전달하기 위해..
+     this.pivot.columns[0]["precision"] = precision;
 
      this.update({});
    }
@@ -535,6 +584,38 @@ export class MapLayerOptionComponent2 extends BaseOptionComponent implements OnI
    }
 
    /**
+    * 선형 타입 변경시
+    * @param type 사이즈타입 (series(default), dimension)
+    */
+   public changeThicknessType(sizeType: string) {
+
+     this.thickness['by'] = sizeType;
+
+     // 해당 레이어 타입으로 설정
+     this.uiOption = <UIOption>_.extend({}, this.uiOption, {
+       layers: this.changeLayerOption()
+     });
+
+     this.update();
+   }
+
+   /**
+    * 선형 컬럼 변경시
+    * @param sizeCol 사이즈컬럼 (series(default), dimension)
+    */
+   public changeThicknessColumn(sizeCol: string) {
+
+     this.thickness['column'] = sizeCol;
+
+     // 해당 레이어 타입으로 설정
+     this.uiOption = <UIOption>_.extend({}, this.uiOption, {
+       layers: this.changeLayerOption()
+     });
+
+     this.update();
+   }
+
+   /**
     * 컬러 컬럼 변경시
     * @param colorCol 컬러컬럼 (series(default), dimension)
     */
@@ -572,7 +653,7 @@ export class MapLayerOptionComponent2 extends BaseOptionComponent implements OnI
     */
    public lineDashType(lineDashType: string): void {
 
-     this.outline["lineDash"] = lineDashType;
+     this.pathType = lineDashType;
 
      // 해당 레이어 타입으로 설정
      this.uiOption = <UIOption>_.extend({}, this.uiOption, {
@@ -655,6 +736,21 @@ export class MapLayerOptionComponent2 extends BaseOptionComponent implements OnI
      this.update();
    }
 
+   /**
+    * line max width
+    */
+   public changeStrokeMaxWidth() {
+     this.thickness = this.uiOption.layers[1].thickness;
+
+     // 해당 레이어명으로 설정
+     this.uiOption = <UIOption>_.extend({}, this.uiOption, {
+       layers: this.changeLayerOption()
+     });
+
+     // update
+     this.update();
+   }
+
    public changeLayerOption() {
 
      this.layerOptions = [this.uiOption.layers[0],{
@@ -665,7 +761,11 @@ export class MapLayerOptionComponent2 extends BaseOptionComponent implements OnI
        size: this.size,
        outline: this.outline,
        clustering: this.clustering,
-       viewRawData: this.viewRawData
+       viewRawData: this.viewRawData,
+       blur: this.blur,
+       radius: this.radius,
+       coverage: this.coverage,
+       thickness: this.thickness
      },this.uiOption.layers[2]]
 
      this.measureList = [];
@@ -1724,7 +1824,7 @@ export class MapLayerOptionComponent2 extends BaseOptionComponent implements OnI
         keyboard: false,
         min: 5,
         max: 30,
-        from: scope.uiOption.layers[0].color.radius,
+        from: scope.uiOption.layers[0].radius,
         type: 'single',
         step: 5,
         onChange(data) {

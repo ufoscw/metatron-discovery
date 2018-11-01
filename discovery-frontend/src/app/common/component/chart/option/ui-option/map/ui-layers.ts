@@ -14,9 +14,10 @@
 
 import { MapLayerSize } from './ui-symbol-layer';
 import { MapOutline } from './ui-outline';
+import { UIThickness } from './ui-line-layer';
 
 /**
- * 바차트 화면 UI에 필요한 옵션
+ * 맵차트 화면 UI에 필요한 옵션
  * Version 2.0
  */
 export interface UILayers {
@@ -48,6 +49,18 @@ export interface UILayers {
   datasource?: string;
 
   viewRawData?: boolean;
+
+  blur?: number;
+
+  radius?: number;
+
+  thickness?: UIThickness;
+
+  pathType?: string;
+
+  shape?: string;
+
+  coverage?: number;
 }
 
 /**
@@ -73,11 +86,9 @@ interface SymbolColor {
   // Target color, if line layer case
   target?: string;
 
-  // TODO options which doesn't belong to color
-  blur?: number;
-
-  radius?: number;
+  /////////////////////
+  //// only used in ui
+  /////////////////////
 
   resolution?: number;
-  // TODO options which doesn't belong to color //
 }
