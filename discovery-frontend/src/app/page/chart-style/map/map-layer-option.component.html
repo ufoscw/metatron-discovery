@@ -334,11 +334,11 @@
                     <div class="ddp-divide2">
                       <div class="ddp-list-label">{{'msg.page.layer.map.size.by' | translate}}</div>
                       <!-- SELECTBOX -->
-                      <div class="ddp-type-selectbox" (click)="thicknessTypeFlag=!thicknessTypeFlag;" (clickOutside)="thicknessTypeFlag=false" [excludeBeforeClick]="true">
-                        <span class="ddp-txt-selectbox">{{ uiOption.layers[index].thickness.by.toString() === 'NONE' ? translateService.instant('msg.space.ui.none') : uiOption.layers[index].thickness.by }}</span>
-                        <ul class="ddp-list-selectbox ddp-selectdown" style="display: block" *ngIf="thicknessTypeFlag">
-                          <li (click)="changeThicknessType('NONE')"><a href="#">{{'msg.page.layer.map.stroke.none' | translate}}</a></li>
-                          <li (click)="changeThicknessType('MEASURE')" *ngIf="uiOption.measureList && uiOption.measureList[0] && uiOption.measureList[0].length > 0"><a href="#">{{'msg.page.layer.map.stroke.measure' | translate}}</a></li>
+                      <div class="ddp-type-selectbox" (click)="sizeTypeFlag=!sizeTypeFlag;" (clickOutside)="sizeTypeFlag=false" [excludeBeforeClick]="true">
+                        <span class="ddp-txt-selectbox">{{ uiOption.layers[0].size.by.toString() === 'NONE' ? translateService.instant('msg.space.ui.none') : uiOption.layers[0].size.by }}</span>
+                        <ul class="ddp-list-selectbox ddp-selectdown" style="display: block" *ngIf="sizeTypeFlag">
+                          <li (click)="changeSizeType('NONE')"><a href="#">{{'msg.page.layer.map.size.by.none' | translate}}</a></li>
+                          <li (click)="changeSizeType('MEASURE')" *ngIf="uiOption.measureList && uiOption.measureList[0] && uiOption.measureList[0].length > 0"><a href="#">{{'msg.page.layer.map.size.by.measure' | translate}}</a></li>
                         </ul>
                       </div>
                       <!-- //SELECTBOX -->
@@ -431,18 +431,6 @@
                       <input type="text" class="ddp-input-typebasic ddp-txt-right ddp-readonly" readonly="readonly" placeholder="" [value]="translateNumber('heatmapBlur', uiOption.layers[index].blur)">
                     </div>
                   </div>
-                  <!-- SELECTBOX -->
-                  <!-- <div class="ddp-type-selectbox" (click)="blurFlag=!blurFlag;" (clickOutside)="blurFlag=false" [excludeBeforeClick]="true">
-                      <span class="ddp-txt-selectbox">{{ translateNumber('heatmapBlur', uiOption.layers[index].color.blur) }}</span>
-                      <ul class="ddp-list-selectbox ddp-selectdown" style="display: block" *ngIf="blurFlag">
-                          <li (click)="changeBlur(30)"><a href="#">100%</a></li>
-                          <li (click)="changeBlur(25)"><a href="#">80%</a></li>
-                          <li (click)="changeBlur(20)"><a href="#">60%</a></li>
-                          <li (click)="changeBlur(15)"><a href="#">40%</a></li>
-                          <li (click)="changeBlur(10)"><a href="#">20%</a></li>
-                      </ul>
-                  </div> -->
-                  <!-- //SELECTBOX -->
 
                   <div class="ddp-ui-slider-type type-per ddp-slider-bg ddp-grid">
                     <em class="ddp-bar"></em>
@@ -524,28 +512,28 @@
                         </ul>
                       </div>
                       <!-- //SELECTBOX -->
+                    </div>
 
-                      <!-- part -->
-                      <div class="ddp-divide2" *ngIf="uiOption.measureList && uiOption.measureList[0] && uiOption.layers[index].thickness.by.toString() === 'MEASURE'">
-                        <!-- SELECTBOX -->
-                        <component-select
-                          [array]="uiOption.measureList[0]"
-                          [defaultIndex]="uiOption.measureList[0] && uiOption.measureList[0].indexOf(uiOption.layers[index].thickness['column'])"
-                          (onSelected)="changeThicknessColumn($event)"
-                        ></component-select>
-                      </div>
-                      <!-- //part -->
-                      <div class="ddp-divide2">
-                        <div class="ddp-wrap-option-multy ddp-clear">
-                          <div class="ddp-col-8">
-                            <span class="ddp-label-txt">{{'msg.page.layer.map.stroke.max.width' | translate}} (pt)</span>
-                          </div>
-                          <div class="ddp-col-4">
-                            <input type="text" class="ddp-input-typebasic ddp-txt-right" placeholder="" [(ngModel)]="uiOption.layers[index].thickness['maxValue']" (keyup.enter)="changeStrokeMaxWidth()" (focusout)="changeStrokeMaxWidth()">
-                          </div>
+                    <!-- part -->
+                    <div class="ddp-divide2" *ngIf="uiOption.measureList && uiOption.measureList[0] && uiOption.layers[index].thickness.by.toString() === 'MEASURE'">
+                      <!-- SELECTBOX -->
+                      <component-select
+                        [array]="uiOption.measureList[0]"
+                        [defaultIndex]="uiOption.measureList[0] && uiOption.measureList[0].indexOf(uiOption.layers[index].thickness['column'])"
+                        (onSelected)="changeThicknessColumn($event)"
+                      ></component-select>
+                    </div>
+                    <!-- //part -->
+                    <div class="ddp-divide2">
+                      <div class="ddp-wrap-option-multy ddp-clear">
+                        <div class="ddp-col-8">
+                          <span class="ddp-label-txt">{{'msg.page.layer.map.stroke.max.width' | translate}} (pt)</span>
+                        </div>
+                        <div class="ddp-col-4">
+                          <input type="text" class="ddp-input-typebasic ddp-txt-right" placeholder="" [(ngModel)]="uiOption.layers[index].thickness['maxValue']" (keyup.enter)="changeStrokeMaxWidth()" (focusout)="changeStrokeMaxWidth()">
                         </div>
                       </div>
-                    <!-- //divide -->
+                    </div>
                   </div>
                 </div>
                 <!-- //divide -->

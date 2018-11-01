@@ -18,8 +18,8 @@
 import { UILayers } from './ui-layers';
 
 // TODO add extends UILayers later
-export interface UIHeatmapLayer {
-// export interface UIHeatmapLayer extends UILayers {
+// export interface UIHeatmapLayer {
+export interface UIHeatmapLayer extends UILayers {
 
   // Blur value (0~100), default 20
   blur?: number;

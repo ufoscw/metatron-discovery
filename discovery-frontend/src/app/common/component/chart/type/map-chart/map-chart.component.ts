@@ -27,6 +27,7 @@ import * as h3 from 'h3-js';
 
 import { OptionGenerator } from '../../../../../common/component/chart/option/util/option-generator';
 import UI = OptionGenerator.UI;
+import { UIHeatmapLayer } from '../../option/ui-option/map/ui-heatmap-layer';
 
 
 export class Map {
@@ -67,7 +68,6 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
 
   public secondLayerQuery: SearchQueryRequest;
   public thirdLayerQuery: SearchQueryRequest;
-
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Variables
@@ -1161,8 +1161,8 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
       source: source,
       // style: this.clusterStyleFunction(0, this.data),
       opacity: this.uiOption.layers[0].color.transparency / 100, //투명도
-      blur: this.uiOption.layers[0].blur, //흐림
-      radius: this.uiOption.layers[0].radius, //반경
+      blur: (<UIHeatmapLayer>this.uiOption.layers[0]).blur, //흐림
+      radius: (<UIHeatmapLayer>this.uiOption.layers[0]).radius, //반경
       gradient: colorList //gradation color list
     });
 
@@ -1323,8 +1323,8 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
       clusterLayer.setStyle(this.clusterStyleFunction(0, this.data));
       // clusterLayer.setOpacity(this.uiOption.layers[0].color.transparency / 100);
 
-      heatmapLayer.setBlur(this.uiOption.layers[0].blur);
-      heatmapLayer.setRadius(this.uiOption.layers[0].radius);
+      heatmapLayer.setBlur((<UIHeatmapLayer>this.uiOption.layers[0]).blur);
+      heatmapLayer.setRadius((<UIHeatmapLayer>this.uiOption.layers[0]).radius);
       heatmapLayer.setOpacity(this.uiOption.layers[0].color.transparency / 100);
 
       hexagonLayer.setStyle(this.hexagonStyleFunction(0, this.data));
@@ -1698,8 +1698,8 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
       source: source,
       style: this.clusterStyleFunction(1, this.data),
       opacity: this.uiOption.layers[1].color.transparency / 100,
-      blur: this.uiOption.layers[1].blur,
-      radius: this.uiOption.layers[1].radius,
+      blur: (<UIHeatmapLayer>this.uiOption.layers[1]).blur,
+      radius: (<UIHeatmapLayer>this.uiOption.layers[1]).radius,
       gradient: colorList
     });
 
@@ -1854,8 +1854,8 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
       clusterLayer.setStyle(this.clusterStyleFunction(1, this.data));
       // clusterLayer.setOpacity(this.uiOption.layers[1].color.transparency / 100);
 
-      heatmapLayer.setBlur(this.uiOption.layers[1].blur);
-      heatmapLayer.setRadius(this.uiOption.layers[1].radius);
+      heatmapLayer.setBlur((<UIHeatmapLayer>this.uiOption.layers[1]).blur);
+      heatmapLayer.setRadius((<UIHeatmapLayer>this.uiOption.layers[1]).radius);
       heatmapLayer.setOpacity(this.uiOption.layers[1].color.transparency / 100);
 
       hexagonLayer.setStyle(this.hexagonStyleFunction(1, this.data));
@@ -1959,8 +1959,8 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
       source: source,
       style: this.clusterStyleFunction(2, this.data),
       opacity: this.uiOption.layers[2].color.transparency / 100,
-      blur: this.uiOption.layers[2].blur,
-      radius: this.uiOption.layers[2].radius,
+      blur: (<UIHeatmapLayer>this.uiOption.layers[2]).blur,
+      radius: (<UIHeatmapLayer>this.uiOption.layers[2]).radius,
       gradient: colorList
     });
 
@@ -2115,8 +2115,8 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
       clusterLayer.setStyle(this.clusterStyleFunction(2, this.data));
       // clusterLayer.setOpacity(this.uiOption.layers[2].color.transparency / 100);
 
-      heatmapLayer.setBlur(this.uiOption.layers[2].blur);
-      heatmapLayer.setRadius(this.uiOption.layers[2].radius);
+      heatmapLayer.setBlur((<UIHeatmapLayer>this.uiOption.layers[2]).blur);
+      heatmapLayer.setRadius((<UIHeatmapLayer>this.uiOption.layers[2]).radius);
       heatmapLayer.setOpacity(this.uiOption.layers[2].color.transparency / 100);
 
       hexagonLayer.setStyle(this.hexagonStyleFunction(2, this.data));

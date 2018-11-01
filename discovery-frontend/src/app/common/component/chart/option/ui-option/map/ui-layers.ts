@@ -50,9 +50,9 @@ export interface UILayers {
 
   viewRawData?: boolean;
 
-  blur?: number;
-
-  radius?: number;
+  // blur?: number;
+  //
+  // radius?: number;
 
   thickness?: UIThickness;
 

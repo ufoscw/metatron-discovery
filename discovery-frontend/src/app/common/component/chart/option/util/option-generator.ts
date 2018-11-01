@@ -2005,7 +2005,7 @@ export namespace OptionGenerator {
         showDistrictLayer: true,
         districtUnit: "state",
         layers: [
-          {
+          <any>{
             type: "symbol",
             name: "Layer1",
             symbol: "CIRCLE",             // CIRCLE, SQUARE, TRIANGLE, PIN, PLAIN, USER
@@ -2036,7 +2036,7 @@ export namespace OptionGenerator {
             radius: 10,
             pathType: "STRAIGHT"
           },
-          {
+          <any>{
             type: "symbol",
             name: "Layer2",
             symbol: "CIRCLE",             // CIRCLE, SQUARE, TRIANGLE, PIN, PLAIN, USER
@@ -2067,7 +2067,7 @@ export namespace OptionGenerator {
             radius: 10,
             pathType: "STRAIGHT"
           },
-          {
+          <any>{
             type: "symbol",
             name: "Layer3",
             symbol: "CIRCLE",             // CIRCLE, SQUARE, TRIANGLE, PIN, PLAIN, USER
