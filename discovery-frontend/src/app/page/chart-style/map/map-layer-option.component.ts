@@ -199,7 +199,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
 
   public clustering: boolean = false;
   public viewRawData: boolean = false;
-  public layerOptions: Object;
+  public layerOptions: Object[];
 
   // 색상의 기준이 되는 행/열 필드 리스트
   public fieldList: string[] = [];
@@ -215,6 +215,9 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+   @Input('index')
+   public index: number;
 
    // 선반데이터
    @Input('pivot')
@@ -239,11 +242,11 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
    public set setUiOption(uiOption: UIOption) {
 
      //Set
-     if(this.resultData['data'][0].valueRange[uiOption.layers[0].color.column]) {
-       const minValue = this.checkMinZero(this.resultData['data'][0].valueRange[uiOption.layers[0].color.column].minValue, this.resultData['data'][0].valueRange[uiOption.layers[0].color.column].minValue);
+     if(this.resultData['data'][this.index].valueRange[uiOption.layers[this.index].color.column]) {
+       const minValue = this.checkMinZero(this.resultData['data'][this.index].valueRange[uiOption.layers[this.index].color.column].minValue, this.resultData['data'][this.index].valueRange[uiOption.layers[this.index].color.column].minValue);
 
        this.minValue = FormatOptionConverter.getDecimalValue(minValue, uiOption.valueFormat.decimal, uiOption.valueFormat.useThousandsSep);
-       this.maxValue = FormatOptionConverter.getDecimalValue(this.resultData['data'][0].valueRange[uiOption.layers[0].color.column].maxValue, uiOption.valueFormat.decimal, uiOption.valueFormat.useThousandsSep);
+       this.maxValue = FormatOptionConverter.getDecimalValue(this.resultData['data'][this.index].valueRange[uiOption.layers[this.index].color.column].maxValue, uiOption.valueFormat.decimal, uiOption.valueFormat.useThousandsSep);
      }
 
      this.uiOption = uiOption;
@@ -381,17 +384,17 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
      } else if(colorType === 'DIMENSION') {
        this.color['schema'] = 'SC1';
        // init column
-       if (this.uiOption.layers[0]) {
-         if (!this.uiOption.layers[0].color) this.uiOption.layers[0].color = {};
-         this.uiOption.layers[0].color['column'] = "NONE";
+       if (this.uiOption.layers[this.index]) {
+         if (!this.uiOption.layers[this.index].color) this.uiOption.layers[this.index].color = {};
+         this.uiOption.layers[this.index].color['column'] = "NONE";
        }
      } else if(colorType === 'MEASURE') {
        this.color['schema'] = 'VC1';
-       this.color['ranges'] = this.setMeasureColorRange(this.uiOption, this.resultData['data'][0], ChartColorList[this.color['schema']]);
+       this.color['ranges'] = this.setMeasureColorRange(this.uiOption, this.resultData['data'][this.index], ChartColorList[this.color['schema']]);
        // init column
-       if (this.uiOption.layers[0]) {
-         if (!this.uiOption.layers[0].color) this.uiOption.layers[0].color = {};
-         this.uiOption.layers[0].color['column'] = "NONE";
+       if (this.uiOption.layers[this.index]) {
+         if (!this.uiOption.layers[this.index].color) this.uiOption.layers[this.index].color = {};
+         this.uiOption.layers[this.index].color['column'] = "NONE";
        }
      }
 
@@ -409,9 +412,9 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
    public changeColor(color: Object, gridColor?: Object) {
 
      // 차트 타입이 MEASURE인경우
-     if (this.uiOption.layers[0].color.by === 'MEASURE') {
+     if (this.uiOption.layers[this.index].color.by === 'MEASURE') {
 
-       this.uiOption.layers[0].color['ranges'] = this.setMeasureColorRange(this.uiOption, this.resultData['data'][0], ChartColorList[color['colorNum']]);
+       this.uiOption.layers[this.index].color['ranges'] = this.setMeasureColorRange(this.uiOption, this.resultData['data'][this.index], ChartColorList[color['colorNum']]);
 
        // // 선택된 컬러를 변수에 설정
        // if( _.eq(this.uiOption.type, ChartType.GRID) ) {
@@ -544,9 +547,9 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
      } else if(sizeType === 'MEASURE') {
 
        // init column
-       if (this.uiOption.layers[0]) {
-         if (!this.uiOption.layers[0].size) this.uiOption.layers[0].size = {};
-         this.uiOption.layers[0].size['column'] = "NONE";
+       if (this.uiOption.layers[this.index]) {
+         if (!this.uiOption.layers[this.index].size) this.uiOption.layers[this.index].size = {};
+         this.uiOption.layers[this.index].size['column'] = "NONE";
          this.clustering = false;
        }
      }
@@ -614,7 +617,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
    public changeColorColumn(colorCol: string) {
 
      this.color['column'] = colorCol;
-     this.color['ranges'] = this.setMeasureColorRange(this.uiOption, this.resultData['data'][0], ChartColorList[this.uiOption.layers[0].color['schema']]);
+     this.color['ranges'] = this.setMeasureColorRange(this.uiOption, this.resultData['data'][this.index], ChartColorList[this.uiOption.layers[this.index].color['schema']]);
 
      // 해당 레이어 타입으로 설정
      this.uiOption = <UIOption>_.extend({}, this.uiOption, {
@@ -736,7 +739,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
     * 레이어명을 변경한다.
     */
    public changeLayerName() {
-     this.name = this.uiOption.layers[0].name;
+     this.name = this.uiOption.layers[this.index].name;
 
      // 해당 레이어명으로 설정
      this.uiOption = <UIOption>_.extend({}, this.uiOption, {
@@ -751,7 +754,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
     * line max width
     */
    public changeStrokeMaxWidth() {
-     this.thickness = this.uiOption.layers[0].thickness;
+     this.thickness = this.uiOption.layers[this.index].thickness;
 
      // 해당 레이어명으로 설정
      this.uiOption = <UIOption>_.extend({}, this.uiOption, {
@@ -762,55 +765,61 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
      this.update();
    }
 
-   public changeLayerOption() {
-     this.layerOptions = [{
-       type: this.type,
-       name: this.name,
-       symbol: this.symbol,
-       color: this.color,
-       size: this.size,
-       outline: this.outline,
-       clustering: this.clustering,
-       viewRawData: this.viewRawData,
-       blur: this.blur,
-       radius: this.radius,
-       coverage: this.coverage,
-       thickness: this.thickness,
-       pathType: this.pathType
-     },this.uiOption.layers[1],this.uiOption.layers[2]]
+  public changeLayerOption() {
+
+      let option: Object = {
+        type: this.type,
+        name: this.name,
+        symbol: this.symbol,
+        color: this.color,
+        size: this.size,
+        outline: this.outline,
+        clustering: this.clustering,
+        viewRawData: this.viewRawData
+      };
+
+      this.layerOptions = [];
+      for( let num: number = 0 ; num < 3 ; num++ ) {
+        if( num == this.index ) {
+          this.layerOptions.push(option);
+        }
+        else {
+          this.layerOptions.push(this.uiOption.layers[num]);
+        }
+      }
 
      // when color column is none or empty, set default column
      if (this.uiOption.layers && this.uiOption.layers.length > 0 &&
-         'NONE' == this.uiOption.layers[0].color['column'] || !this.uiOption.layers[0].color['column']) {
+         'NONE' == this.uiOption.layers[this.index].color['column'] || !this.uiOption.layers[this.index].color['column']) {
 
-       if (!this.uiOption.layers[0].color) this.uiOption.layers[0].color = {};
+       if (!this.uiOption.layers[this.index].color) this.uiOption.layers[this.index].color = {};
 
-       const colorType = this.uiOption.layers[0].color.by;
+       const colorType = this.uiOption.layers[this.index].color.by;
 
        // when it's dimension, set default column
        if ('DIMENSION' === colorType) {
 
-         this.uiOption.layers[0].color['column'] = this.uiOption.fieldList[0];
+         this.uiOption.layers[this.index].color['column'] = this.uiOption.fieldList[0];
 
          // when it's measure, set default column
        } else if ('MEASURE' === colorType && this.measureList && this.measureList.length > 0) {
 
-         this.uiOption.layers[0].color['column'] = this.measureList[0];
+         this.uiOption.layers[this.index].color['column'] = this.measureList[0];
        }
      }
 
      // when size column is none or empty, set default column
      if (this.uiOption.layers && this.uiOption.layers.length > 0 &&
-         'NONE' == this.uiOption.layers[0].size['column'] || !this.uiOption.layers[0].size['column']) {
+         'NONE' == this.uiOption.layers[this.index].size['column'] || !this.uiOption.layers[this.index].size['column']) {
 
-       if (!this.uiOption.layers[0].size) this.uiOption.layers[0].size = {};
+       if (!this.uiOption.layers[this.index].size) this.uiOption.layers[this.index].size = {};
 
-       const sizeType = this.uiOption.layers[0].size.by;
+       const sizeType = this.uiOption.layers[this.index].size.by;
 
          // when it's measure, set default column
        if ('MEASURE' === sizeType && this.measureList && this.measureList.length > 0) {
 
-         this.uiOption.layers[0].size['column'] = this.measureList[0];
+         this.uiOption.layers[this.index].size['column'] = this.measureList[0];
        }
      }
 
@@ -900,23 +909,23 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
    private setUserCodes(color: Object): Object {
 
      // // color by series가 아닐거나 mapping값이 없을때 return
-     // if ((!_.eq(ChartColorType.SERIES, this.uiOption.layers[0].color.type) && !_.eq(ChartType.GAUGE, this.uiOption.type)) || (_.eq(ChartType.GAUGE, this.uiOption.type) && !_.eq(ChartColorType.DIMENSION, this.uiOption.layers[0].color.type))  || !(<UIChartColorBySeries>this.uiOption.layers[0].color).mapping) return;
+     // if ((!_.eq(ChartColorType.SERIES, this.uiOption.layers[this.index].color.type) && !_.eq(ChartType.GAUGE, this.uiOption.type)) || (_.eq(ChartType.GAUGE, this.uiOption.type) && !_.eq(ChartColorType.DIMENSION, this.uiOption.layers[this.index].color.type))  || !(<UIChartColorBySeries>this.uiOption.layers[this.index].color).mapping) return;
      //
      // // 기존 색상 리스트
-     // const colorList = ChartColorList[(<UIChartColorBySeries>this.uiOption.layers[0].color).schema];
-     // (<UIChartColorBySeries>this.uiOption.layers[0].color).mappingArray.forEach((item, index) => {
+     // const colorList = ChartColorList[(<UIChartColorBySeries>this.uiOption.layers[this.index].color).schema];
+     // (<UIChartColorBySeries>this.uiOption.layers[this.index].color).mappingArray.forEach((item, index) => {
      //
      //   // 다른코드값이 아닌경우
      //   if (_.eq(colorList[index], item['color'])) {
      //     const changedColorList = ChartColorList[color['colorNum']];
      //
-     //     (<UIChartColorBySeries>this.uiOption.layers[0].color).mapping[item['alias']] = changedColorList[index];
-     //     (<UIChartColorBySeries>this.uiOption.layers[0].color).mappingArray[index]['color'] = changedColorList[index];
+     //     (<UIChartColorBySeries>this.uiOption.layers[this.index].color).mapping[item['alias']] = changedColorList[index];
+     //     (<UIChartColorBySeries>this.uiOption.layers[this.index].color).mappingArray[index]['color'] = changedColorList[index];
      //   }
      // });
      //
 
-     return (<UIChartColorBySeries>this.uiOption.layers[0].color);
+     return (<UIChartColorBySeries>this.uiOption.layers[this.index].color);
    }
 
    /**
@@ -928,7 +937,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
      for (const item of this.defaultColorList) {
 
        // 코드값이 같은경우
-       if (JSON.stringify(this.uiOption.layers[0].color['schema']) === JSON.stringify(item['colorNum'])) {
+       if (JSON.stringify(this.uiOption.layers[this.index].color['schema']) === JSON.stringify(item['colorNum'])) {
 
          return item['index'];
        }
@@ -951,7 +960,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
      for (const item of colorList) {
 
        // 코드값이 같은경우
-       if (JSON.stringify(this.uiOption.layers[0].color['schema']) === JSON.stringify(item['colorNum'])) {
+       if (JSON.stringify(this.uiOption.layers[this.index].color['schema']) === JSON.stringify(item['colorNum'])) {
 
          return item['index'];
        }
@@ -967,7 +976,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
      // for (const item of colorList) {
      //
      //   // 코드값이 같은경우
-     //   if (JSON.stringify(this.uiOption.layers[0].color['schema']) === JSON.stringify(item['colorNum'])) {
+     //   if (JSON.stringify(this.uiOption.layers[this.index].color['schema']) === JSON.stringify(item['colorNum'])) {
      //
      //     return item['index'];
      //   }
@@ -1004,16 +1013,16 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
   // Init
   public ngOnInit() {
 
-    this.type = this.uiOption.layers[0].type;
-    this.name = this.uiOption.layers[0].name;
-    this.symbol = this.uiOption.layers[0].symbol;
-    this.color = this.uiOption.layers[0].color;
-    this.size = this.uiOption.layers[0].size;
-    this.outline = this.uiOption.layers[0].outline;
-    this.clustering = this.uiOption.layers[0].clustering;
+    this.type = this.uiOption.layers[this.index].type;
+    this.name = this.uiOption.layers[this.index].name;
+    this.symbol = this.uiOption.layers[this.index].symbol;
+    this.color = this.uiOption.layers[this.index].color;
+    this.size = this.uiOption.layers[this.index].size;
+    this.outline = this.uiOption.layers[this.index].outline;
+    this.clustering = this.uiOption.layers[this.index].clustering;
 
     if(this.color['customMode']) {
-      this.rangesViewList = this.uiOption.layers[0].color['ranges'];
+      this.rangesViewList = this.uiOption.layers[this.index].color['ranges'];
     }
 
     //timeout 없으면 가끔 slider가 textbox로 생성됨
@@ -1052,20 +1061,20 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
    */
   public changeColorRange() {
 
-    let colorOption = <any>this.uiOption.layers[0].color;
+    let colorOption = <any>this.uiOption.layers[this.index].color;
 
     // custom color setting이 없을때
-    if (!this.uiOption.layers[0].color['customMode']) {
+    if (!this.uiOption.layers[this.index].color['customMode']) {
 
       colorOption['customMode'] = ColorCustomMode.SECTION;
 
       // ranges 값이 없는경우 uiOption update
-      if (!(<UIChartColorByValue>this.uiOption.layers[0].color).ranges) {
+      if (!(<UIChartColorByValue>this.uiOption.layers[this.index].color).ranges) {
 
-        const ranges = this.setMeasureColorRange(this.uiOption, this.resultData['data'][0], ChartColorList[this.uiOption.layers[0].color['schema']]);
+        const ranges = this.setMeasureColorRange(this.uiOption, this.resultData['data'][this.index], ChartColorList[this.uiOption.layers[this.index].color['schema']]);
 
-        this.color['schema'] = (<UIChartColorBySeries>this.uiOption.layers[0].color).schema;
-        this.color['customMode'] = (<UIChartColorByValue>this.uiOption.layers[0].color).customMode;
+        this.color['schema'] = (<UIChartColorBySeries>this.uiOption.layers[this.index].color).schema;
+        this.color['customMode'] = (<UIChartColorByValue>this.uiOption.layers[this.index].color).customMode;
         this.color['ranges'] = ranges;
         this.rangesViewList = ranges;
 
@@ -1073,10 +1082,10 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
     // color range hide일때
     } else {
 
-    let ranges = this.setMeasureColorRange(this.uiOption, this.resultData['data'][0], <any>ChartColorList[(<UIChartColorBySeries>this.uiOption.layers[0].color).schema]);
+    let ranges = this.setMeasureColorRange(this.uiOption, this.resultData['data'][this.index], <any>ChartColorList[(<UIChartColorBySeries>this.uiOption.layers[this.index].color).schema]);
       // color by measure기본 ranges값으로 초기화
 
-      this.color['schema'] = (<UIChartColorBySeries>this.uiOption.layers[0].color).schema;
+      this.color['schema'] = (<UIChartColorBySeries>this.uiOption.layers[this.index].color).schema;
       this.color['ranges'] = ranges;
       this.color['customMode'] = null;
 
@@ -1099,36 +1108,36 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
    */
   public selectColorRangeType(customMode: Object): void {
 
-    if (this.uiOption.layers[0].color['customMode'] == customMode['value']) return;
+    if (this.uiOption.layers[this.index].color['customMode'] == customMode['value']) return;
 
     // 선택된 customMode 설정
-    this.uiOption.layers[0].color['customMode'] = customMode['value'];
+    this.uiOption.layers[this.index].color['customMode'] = customMode['value'];
 
     // case gradation
     if (ColorCustomMode.GRADIENT == customMode['value']) {
-      delete this.uiOption.layers[0].color['ranges'];
-      delete this.uiOption.layers[0].color['visualGradations'];
+      delete this.uiOption.layers[this.index].color['ranges'];
+      delete this.uiOption.layers[this.index].color['visualGradations'];
       // gradation range initialize
-      const obj = this.gradationInit(this.uiOption.layers[0].color['ranges'], true);
+      const obj = this.gradationInit(this.uiOption.layers[this.index].color['ranges'], true);
 
-      this.uiOption.layers[0].color['ranges'] = obj['ranges'];
-      this.rangesViewList = this.uiOption.layers[0].color['ranges'];
-      this.uiOption.layers[0].color['visualGradations'] = obj['visualGradations'];
+      this.uiOption.layers[this.index].color['ranges'] = obj['ranges'];
+      this.rangesViewList = this.uiOption.layers[this.index].color['ranges'];
+      this.uiOption.layers[this.index].color['visualGradations'] = obj['visualGradations'];
     // section일때
     } else if (ColorCustomMode.SECTION == customMode['value']) {
-      delete this.uiOption.layers[0].color['ranges'];
-      delete this.uiOption.layers[0].color['visualGradations'];
+      delete this.uiOption.layers[this.index].color['ranges'];
+      delete this.uiOption.layers[this.index].color['visualGradations'];
       // range initialize
-      this.uiOption.layers[0].color['ranges'] = this.setMeasureColorRange(this.uiOption, this.resultData['data'][0], <any>ChartColorList[this.uiOption.layers[0].color['schema']]);
-      this.rangesViewList = this.uiOption.layers[0].color['ranges'];
+      this.uiOption.layers[this.index].color['ranges'] = this.setMeasureColorRange(this.uiOption, this.resultData['data'][this.index], <any>ChartColorList[this.uiOption.layers[this.index].color['schema']]);
+      this.rangesViewList = this.uiOption.layers[this.index].color['ranges'];
     }
 
-    this.minValue = this.resultData['data'][0].valueRange[this.uiOption.layers[0].color.column].minValue;
-    this.maxValue = this.resultData['data'][0].valueRange[this.uiOption.layers[0].color.column].maxValue;
+    this.minValue = this.resultData['data'][this.index].valueRange[this.uiOption.layers[this.index].color.column].minValue;
+    this.maxValue = this.resultData['data'][this.index].valueRange[this.uiOption.layers[this.index].color.column].maxValue;
 
-    // this.uiOption = <UIOption>_.extend({}, this.uiOption, {color : this.uiOption.layers[0].color});
+    // this.uiOption = <UIOption>_.extend({}, this.uiOption, {color : this.uiOption.layers[this.index].color});
 
-    this.color = this.uiOption.layers[0].color;
+    this.color = this.uiOption.layers[this.index].color;
 
     this.uiOption = <UIOption>_.extend({}, this.uiOption, {
        layers: this.changeLayerOption()
@@ -1142,10 +1151,10 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
    */
   private gradationInit(gradations: Object[], initFl?: boolean): Object {
 
-    let colorList = ChartColorList[this.uiOption.layers[0].color['schema']];
+    let colorList = ChartColorList[this.uiOption.layers[this.index].color['schema']];
 
-    const minValue = parseInt(this.resultData['data'][0].valueRange[this.uiOption.layers[0].color.column].minValue.toFixed(0));
-    const maxValue = parseInt(this.resultData['data'][0].valueRange[this.uiOption.layers[0].color.column].maxValue.toFixed(0));
+    const minValue = parseInt(this.resultData['data'][this.index].valueRange[this.uiOption.layers[this.index].color.column].minValue.toFixed(0));
+    const maxValue = parseInt(this.resultData['data'][this.index].valueRange[this.uiOption.layers[this.index].color.column].maxValue.toFixed(0));
 
     if (!gradations || gradations.length == 0) {
       gradations = [
@@ -1204,9 +1213,9 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
   public equalColorRange(): void {
 
     // 색상 범위리스트
-    const rangeList = (<UIChartColorByValue>this.uiOption.layers[0].color).ranges;
+    const rangeList = (<UIChartColorByValue>this.uiOption.layers[this.index].color).ranges;
 
-    let colorList = <any>_.cloneDeep(ChartColorList[this.uiOption.layers[0].color['schema']]);
+    let colorList = <any>_.cloneDeep(ChartColorList[this.uiOption.layers[this.index].color['schema']]);
 
     // rangeList에서의 색상을 색상리스트에 설정
     rangeList.reverse().forEach((item, index) => {
@@ -1215,11 +1224,11 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
     });
 
     // set color ranges
-    this.uiOption.layers[0].color['ranges'] = this.setMeasureColorRange(this.uiOption, this.resultData['data'][0], colorList, rangeList);
+    this.uiOption.layers[this.index].color['ranges'] = this.setMeasureColorRange(this.uiOption, this.resultData['data'][this.index], colorList, rangeList);
 
-    // this.uiOption = <UIOption>_.extend({}, this.uiOption, { color : this.uiOption.layers[0].color });
+    // this.uiOption = <UIOption>_.extend({}, this.uiOption, { color : this.uiOption.layers[this.index].color });
 
-    this.color = this.uiOption.layers[0].color;
+    this.color = this.uiOption.layers[this.index].color;
 
     this.uiOption = <UIOption>_.extend({}, this.uiOption, {
        layers: this.changeLayerOption()
@@ -1246,12 +1255,12 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
     let colorListLength = colorAlterList.length > 0 ? colorAlterList.length - 1 : colorList.length - 1;
 
     // less than 0, set minValue
-    const minValue = data.valueRange[uiOption.layers[0].color.column].minValue >= 0 ? 0 : _.cloneDeep(data.valueRange[uiOption.layers[0].color.column].minValue);
+    const minValue = data.valueRange[uiOption.layers[this.index].color.column].minValue >= 0 ? 0 : _.cloneDeep(data.valueRange[uiOption.layers[this.index].color.column].minValue);
 
     // 차이값 설정 (최대값, 최소값은 값을 그대로 표현해주므로 length보다 2개 작은값으로 빼주어야함)
-    const addValue = (data.valueRange[uiOption.layers[0].color.column].maxValue - minValue) / colorListLength;
+    const addValue = (data.valueRange[uiOption.layers[this.index].color.column].maxValue - minValue) / colorListLength;
 
-    let maxValue = _.cloneDeep(data.valueRange[uiOption.layers[0].color.column].maxValue);
+    let maxValue = _.cloneDeep(data.valueRange[uiOption.layers[this.index].color.column].maxValue);
 
     let shape;
     // if ((<UIScatterChart>uiOption).pointShape) {
@@ -1264,9 +1273,9 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
     });
 
     // decimal min value
-    let formatMinValue = formatValue(data.valueRange[uiOption.layers[0].color.column].minValue);
+    let formatMinValue = formatValue(data.valueRange[uiOption.layers[this.index].color.column].minValue);
     // decimal max value
-    let formatMaxValue = formatValue(data.valueRange[uiOption.layers[0].color.column].maxValue);
+    let formatMaxValue = formatValue(data.valueRange[uiOption.layers[this.index].color.column].maxValue);
 
     // set ranges
     for (let index = colorListLength; index >= 0; index--) {
@@ -1363,10 +1372,10 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
   public addNewRange(index: number) {
 
     // 색상 범위리스트
-    const rangeList = (<UIChartColorByValue>this.uiOption.layers[0].color).ranges;
+    const rangeList = (<UIChartColorByValue>this.uiOption.layers[this.index].color).ranges;
 
     // uiOption minValue의 range에 설정할값 양수일때에는 0, 음수일때에는 minValue로 설정
-    const uiMinValue = this.resultData['data'][0].valueRange[this.uiOption.layers[0].color.column].minValue >= 0 ? 0 : Math.floor(Number(this.resultData['data'][0].valueRange[this.uiOption.layers[0].color.column].minValue) * (Math.pow(10, this.uiOption.valueFormat.decimal))) / Math.pow(10, this.uiOption.valueFormat.decimal);
+    const uiMinValue = this.resultData['data'][this.index].valueRange[this.uiOption.layers[this.index].color.column].minValue >= 0 ? 0 : Math.floor(Number(this.resultData['data'][this.index].valueRange[this.uiOption.layers[this.index].color.column].minValue) * (Math.pow(10, this.uiOption.valueFormat.decimal))) / Math.pow(10, this.uiOption.valueFormat.decimal);
 
     // 최대값
     let maxValue = rangeList[index - 1].gt;
@@ -1387,11 +1396,11 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
     // 새로운 범위값 추가
     rangeList.splice(index, 0, UI.Range.colorRange(ColorRangeType.SECTION, currentColor, formatMinValue, formatMaxValue, formatMinValue, formatMaxValue));
 
-    // this.color['type'] = this.uiOption.layers[0].color.type;
-    this.color['schema'] = (<UIChartColorBySeries>this.uiOption.layers[0].color).schema;
-    this.color['customMode'] = (<UIChartColorByValue>this.uiOption.layers[0].color).customMode;
+    // this.color['type'] = this.uiOption.layers[this.index].color.type;
+    this.color['schema'] = (<UIChartColorBySeries>this.uiOption.layers[this.index].color).schema;
+    this.color['customMode'] = (<UIChartColorByValue>this.uiOption.layers[this.index].color).customMode;
     this.color['ranges'] = rangeList;
-    this.color['colorTarget'] = this.uiOption.layers[0].color['colorTarget']
+    this.color['colorTarget'] = this.uiOption.layers[this.index].color['colorTarget']
 
     // 해당 레이어 타입으로 설정
      this.uiOption = <UIOption>_.extend({}, this.uiOption, {
@@ -1407,7 +1416,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
   public removeColorRange(range: ColorRange, index: number) {
 
     // 색상 범위리스트
-    const rangeList = (<UIChartColorByValue>this.uiOption.layers[0].color).ranges;
+    const rangeList = (<UIChartColorByValue>this.uiOption.layers[this.index].color).ranges;
 
     // rangeList가 1개 남은경우 삭제불가
     if (1 == rangeList.length) return;
@@ -1454,32 +1463,32 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
   public colorPaletteSelected(colorCode: string, item?: any) {
 
     // color by series일때
-    // if (this.uiOption.layers[0].color['by'].toString() == ChartColorType.SERIES) {
+    // if (this.uiOption.layers[this.index].color['by'].toString() == ChartColorType.SERIES) {
     //   // 선택된 필드의 index 가져오기
     //   const index = _.findIndex(this.uiOption.fieldMeasureList, {alias: item.alias});
     //
-    //   const color = ChartColorList[(<UIChartColorBySeries>this.uiOption.layers[0].color).schema];
+    //   const color = ChartColorList[(<UIChartColorBySeries>this.uiOption.layers[this.index].color).schema];
     //
     //   // 해당 선택된 아이템이 있는경우
     //   if (-1 !== index) {
     //
     //     // userCodes값이 없는경우 color codes값을 deep copy
-    //     if (!(<UIChartColorBySeries>this.uiOption.layers[0].color).mapping) {
-    //       (<UIChartColorBySeries>this.uiOption.layers[0].color).mapping = _.cloneDeep(color);
+    //     if (!(<UIChartColorBySeries>this.uiOption.layers[this.index].color).mapping) {
+    //       (<UIChartColorBySeries>this.uiOption.layers[this.index].color).mapping = _.cloneDeep(color);
     //     }
     //
     //     // mapping list에 변경된값 설정
-    //     (<UIChartColorBySeries>this.uiOption.layers[0].color).mappingArray[index]['color'] = colorCode;
+    //     (<UIChartColorBySeries>this.uiOption.layers[this.index].color).mappingArray[index]['color'] = colorCode;
     //
     //     // uiOption userCodes에 세팅
-    //     (<UIChartColorBySeries>this.uiOption.layers[0].color).mapping[(<UIChartColorBySeries>this.uiOption.layers[0].color).mappingArray[index]['alias']] = colorCode;
+    //     (<UIChartColorBySeries>this.uiOption.layers[this.index].color).mapping[(<UIChartColorBySeries>this.uiOption.layers[this.index].color).mappingArray[index]['alias']] = colorCode;
     //
     //
-    //     this.color['by'] = this.uiOption.layers[0].color.by;
-    //     this.color['mapping'] = (<UIChartColorBySeries>this.uiOption.layers[0].color).mapping;
-    //     this.color['mappingArray'] = (<UIChartColorBySeries>this.uiOption.layers[0].color).mappingArray;
-    //     this.color['schema'] = (<UIChartColorBySeries>this.uiOption.layers[0].color).schema;
-    //     this.color['settingUseFl'] = (<UIChartColorBySeries>this.uiOption.layers[0].color).settingUseFl;
+    //     this.color['by'] = this.uiOption.layers[this.index].color.by;
+    //     this.color['mapping'] = (<UIChartColorBySeries>this.uiOption.layers[this.index].color).mapping;
+    //     this.color['mappingArray'] = (<UIChartColorBySeries>this.uiOption.layers[this.index].color).mappingArray;
+    //     this.color['schema'] = (<UIChartColorBySeries>this.uiOption.layers[this.index].color).schema;
+    //     this.color['settingUseFl'] = (<UIChartColorBySeries>this.uiOption.layers[this.index].color).settingUseFl;
     //
     //     // 해당 레이어 타입으로 설정
     //     this.uiOption = <UIOption>_.extend({}, this.uiOption, {
@@ -1489,16 +1498,16 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
     //     this.update();
     //   }
     //   // color by measure일때
-    // } else if (this.uiOption.layers[0].color['by'].toString() == ChartColorType.MEASURE) {
+    // } else if (this.uiOption.layers[this.index].color['by'].toString() == ChartColorType.MEASURE) {
 
       const index = this.rangesViewList.indexOf(item);
       // 선택된 색상으로 설정
-      (<UIChartColorByValue>this.uiOption.layers[0].color).ranges[index].color = colorCode;
+      (<UIChartColorByValue>this.uiOption.layers[this.index].color).ranges[index].color = colorCode;
 
-      this.color['by'] = this.uiOption.layers[0].color.by;
-      this.color['schema'] = (<UIChartColorBySeries>this.uiOption.layers[0].color).schema;
-      this.color['ranges'] = (<UIChartColorByValue>this.uiOption.layers[0].color).ranges;
-      this.color['customMode'] = (<UIChartColorByValue>this.uiOption.layers[0].color).customMode;
+      this.color['by'] = this.uiOption.layers[this.index].color.by;
+      this.color['schema'] = (<UIChartColorBySeries>this.uiOption.layers[this.index].color).schema;
+      this.color['ranges'] = (<UIChartColorByValue>this.uiOption.layers[this.index].color).ranges;
+      this.color['customMode'] = (<UIChartColorByValue>this.uiOption.layers[this.index].color).customMode;
 
       // 해당 레이어 타입으로 설정
       this.uiOption = <UIOption>_.extend({}, this.uiOption, {
@@ -1520,7 +1529,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
   public changeRangeMaxInput(range: any, index: number): void {
 
     // 색상 범위리스트
-    let rangeList = (<UIChartColorByValue>this.uiOption.layers[0].color).ranges;
+    let rangeList = (<UIChartColorByValue>this.uiOption.layers[this.index].color).ranges;
 
     if (!range.lte || isNaN(FormatOptionConverter.getNumberValue(range.lte))) {
 
@@ -1533,7 +1542,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
     range = this.parseStrFloat(range);
 
     // uiOption minValue의 range에 설정할값 양수일때에는 0, 음수일때에는 minValue로 설정
-    const uiMinValue = this.checkMinZero(this.resultData['data'][0].valueRange.minValue, this.resultData['data'][0].valueRange.minValue);
+    const uiMinValue = this.checkMinZero(this.resultData['data'][this.index].valueRange.minValue, this.resultData['data'][this.index].valueRange.minValue);
 
     // 하위 fixMin값
     const lowerfixMin = rangeList[index + 1] ?(rangeList[index + 1].fixMin) ? rangeList[index + 1].fixMin : rangeList[index + 1].fixMax : null;
@@ -1578,7 +1587,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
     // set changed range in list
     rangeList[index] = range;
 
-    this.color = this.uiOption.layers[0].color;
+    this.color = this.uiOption.layers[this.index].color;
     this.color['ranges'] = rangeList;
 
     // 해당 레이어 타입으로 설정
@@ -1597,7 +1606,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
   public changeRangeMinInput(range: any, index: number): void {
 
     // 색상 범위리스트
-    let rangeList = (<UIChartColorByValue>this.uiOption.layers[0].color).ranges;
+    let rangeList = (<UIChartColorByValue>this.uiOption.layers[this.index].color).ranges;
 
     if (!range.gt || isNaN(FormatOptionConverter.getNumberValue(range.gt))) {
       // set original value
@@ -1608,10 +1617,10 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
     // parse string to value
     range = this.parseStrFloat(range);
 
-    let decimalValue = this.resultData['data'][0].valueRange.minValue;
+    let decimalValue = this.resultData['data'][this.index].valueRange.minValue;
 
     // uiOption minValue의 range에 설정할값 양수일때에는 0, 음수일때에는 minValue로 설정
-    const uiMinValue = this.checkMinZero(this.resultData['data'][0].valueRange.minValue, decimalValue);
+    const uiMinValue = this.checkMinZero(this.resultData['data'][this.index].valueRange.minValue, decimalValue);
 
     // 입력가능 최소 / 최대범위 구하기
     let minValue = rangeList[index + 1] ? rangeList[index + 1].gt ? rangeList[index + 1].gt : uiMinValue :
@@ -1622,7 +1631,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
     if (!rangeList[index - 1]) {
 
       // 최대값보다 큰거나 하위의 최대값보다 값이 작은경우
-      if (this.resultData['data'][0].valueRange.maxValue < range.gt || rangeList[index + 1].fixMax > range.gt) {
+      if (this.resultData['data'][this.index].valueRange.maxValue < range.gt || rangeList[index + 1].fixMax > range.gt) {
         range.gt = range.fixMin;
       } else {
         range.fixMin = range.gt;
@@ -1647,7 +1656,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
     // set changed range in list
     rangeList[index] = range;
 
-    this.color = this.uiOption.layers[0].color;
+    this.color = this.uiOption.layers[this.index].color;
     this.color['ranges'] = rangeList;
 
     // 해당 레이어 타입으로 설정
@@ -1711,14 +1720,14 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
    */
   public changeGradations(data: Object) {
 
-    this.uiOption.layers[0].color['visualGradations'] = data['visualGradations'];
+    this.uiOption.layers[this.index].color['visualGradations'] = data['visualGradations'];
 
     data['ranges'].forEach((item) => {if (!item.type) {item.type = ColorRangeType.GRADIENT; return item} else { return item}});
 
-    if (JSON.stringify(data['ranges']) != JSON.stringify(this.uiOption.layers[0].color['ranges'])) {
-      this.uiOption.layers[0].color['ranges'] = data['ranges'];
+    if (JSON.stringify(data['ranges']) != JSON.stringify(this.uiOption.layers[this.index].color['ranges'])) {
+      this.uiOption.layers[this.index].color['ranges'] = data['ranges'];
 
-      this.rangesViewList = this.uiOption.layers[0].color['ranges'];
+      this.rangesViewList = this.uiOption.layers[this.index].color['ranges'];
     }
 
     // binding된 데이터에 반영이 안되므로 zone run으로 실행
@@ -1727,7 +1736,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
       //   color: this.uiOption.color
       // });
 
-      this.color = this.uiOption.layers[0].color;
+      this.color = this.uiOption.layers[this.index].color;
 
       // 해당 레이어 타입으로 설정
       this.uiOption = <UIOption>_.extend({}, this.uiOption, {
@@ -1814,7 +1823,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
         keyboard: false,
         min: 5,
         max: 30,
-        from: scope.uiOption.layers[0].radius,
+        from: scope.uiOption.layers[this.index].radius,
         type: 'single',
         step: 5,
         onChange(data) {
@@ -1837,7 +1846,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
         keyboard: false,
         min: 5,
         max: 10,
-        from: scope.uiOption.layers[0].color.resolution,
+        from: scope.uiOption.layers[this.index].color.resolution,
         type: 'single',
         step: 1,
         onChange(data) {
@@ -1860,7 +1869,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
         keyboard: false,
         min: 5,
         max: 30,
-        from: scope.uiOption.layers[0].blur,
+        from: scope.uiOption.layers[this.index].blur,
         type: 'single',
         step: 5,
         onChange(data) {
