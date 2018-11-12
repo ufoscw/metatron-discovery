@@ -1329,8 +1329,8 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
 
     let featureList = [];
 
-    for(var i=0;i<this.resultData[0].features.length;i++) {
-      featureList.push(this.resultData[0].features[i].properties)
+    for(var i=0;i<this.resultData['data'][0].features.length;i++) {
+      featureList.push(this.resultData['data'][0].features[i].properties)
     }
 
     let featuresGroup = _.groupBy(featureList, uiOption.layers[0].color.column);

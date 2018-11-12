@@ -463,7 +463,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
 
         if(styleOption.layers[layerNum].color['ranges']) {
           for(let range of styleOption.layers[layerNum].color['ranges']) {
-            if(range["column"] === feature.getProperties()[styleOption.layers[layerNum].color.column]) {
+            if(range["column"] === feature.getProperties()[styleOption.layers[layerNum].color.column] || range["column"] === "undefined") {
               featureColor = range["color"];
             }
           }
@@ -811,7 +811,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
 
         if(styleOption.layers[layerNum].color['ranges']) {
           for(let range of styleOption.layers[layerNum].color['ranges']) {
-            if(range["column"] === feature.getProperties()[styleOption.layers[layerNum].color.column]) {
+            if(range["column"] === feature.getProperties()[styleOption.layers[layerNum].color.column] || range["column"] === "undefined") {
               featureColor = range["color"];
             }
           }
@@ -1714,9 +1714,13 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
                   '<span class="ddp-data">' + this.uiOption.layers[i].type + ' Color</span>' +
                   '<ul class="ddp-list-remark">';
 
-              for(let field of this.uiOption.fielDimensionList) {
-                if(field["layerNum"] === i+1) {
-                  legendHtml = legendHtml + '<li><em class="ddp-bg-remark-r" style="background-color:' + this.uiOption.layers[i].color["schema"] + '"></em>' + field["alias"] + '</li>';
+              if (this.uiOption.fielDimensionList.length === 1) {
+                legendHtml = legendHtml + '<li><em class="ddp-bg-remark-r" style="background-color:' + this.uiOption.layers[i].color["schema"] + '"></em>' + this.uiOption.fielDimensionList[0]["alias"] + '</li>';
+              } else {
+                for(let field of this.uiOption.fielDimensionList) {
+                  if(field["layerNum"] === i+1) {
+                    legendHtml = legendHtml + '<li><em class="ddp-bg-remark-r" style="background-color:' + this.uiOption.layers[i].color["schema"] + '"></em>' + field["alias"] + '</li>';
+                  }
                 }
               }
 
