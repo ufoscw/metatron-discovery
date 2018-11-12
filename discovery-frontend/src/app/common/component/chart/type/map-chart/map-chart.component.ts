@@ -345,8 +345,8 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
       let rangeList = [];
 
       let featureList = [];
-      for(var i=0;i<data[0].features.length;i++) {
-        featureList.push(data[0].features[i].properties);
+      for(var i=0;i<data.features.length;i++) {
+        featureList.push(data.features[i].properties);
       }
 
       let featuresGroup = _.groupBy(featureList, uiOption.layers[0].color.column);

@@ -264,9 +264,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
        });
        return isNotGeoField;
      });
-
    }
-
 
    /**
     * Chart - 맵차트 레이어 타입
