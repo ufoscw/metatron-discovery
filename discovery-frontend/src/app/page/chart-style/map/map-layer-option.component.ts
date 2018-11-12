@@ -1870,7 +1870,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
         type: 'single',
         step: 6,
         onChange(data) {
-          scope.changeResolution(data.from);
+          scope.changeRadius(data.from);
         }
         // onFinish(data) {
           // scope._updateBoundValue(data);
