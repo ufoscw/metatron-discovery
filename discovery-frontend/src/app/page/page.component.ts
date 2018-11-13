@@ -1574,14 +1574,17 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
 
     if( this.mapLayerOption1 ) {
       this.mapLayerOption1.setPivot = pivot;
+      this.mapLayerOption1.setUiOption = this.uiOption;
     }
 
     if( this.mapLayerOption2 ) {
       this.mapLayerOption2.setPivot = pivot;
+      this.mapLayerOption2.setUiOption = this.uiOption;
     }
 
     if( this.mapLayerOption3 ) {
       this.mapLayerOption3.setPivot = pivot;
+      this.mapLayerOption3.setUiOption = this.uiOption;
     }
 
     // sort 처리

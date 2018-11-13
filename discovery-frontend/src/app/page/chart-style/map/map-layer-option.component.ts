@@ -254,15 +254,25 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
      this.uiOption = uiOption;
 
      // Set field list
+     /*
+     let pivotColumns = this.pivot.columns;
      this.fieldList = _.filter(this.uiOption.fieldList, (field) => {
        let isNotGeoField: boolean = true;
-       _.each(this.pivot.columns, (dimension) => {
+       _.each(pivotColumns, (dimension) => {
          if( _.eq(field, dimension.name)
             && (_.eq(dimension.field.logicalType, "GEO_POINT") || _.eq(dimension.field.logicalType, "GEO_LINE") || _.eq(dimension.field.logicalType, "GEO_POLYGON")) ) {
            isNotGeoField = false;
          }
        });
        return isNotGeoField;
+     });
+     */
+     let fieldList = _.filter(this.pivot.columns, (dimension) => {
+       return !(_.eq(dimension.field.logicalType, "GEO_POINT") || _.eq(dimension.field.logicalType, "GEO_LINE") || _.eq(dimension.field.logicalType, "GEO_POLYGON"))
+     });
+
+     this.fieldList = _.map(fieldList, (field) => {
+       return field.name;
      });
    }
 
