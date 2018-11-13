@@ -34,6 +34,8 @@ Screenshots
 
 ### Create Charts
 <kbd><img title="Chart" src="https://user-images.githubusercontent.com/6300003/44201180-98bb4e80-a183-11e8-81da-54dd59d14330.png"></kbd><br />
+
+#### Map Charts
 <kbd><img title="Map" src="https://user-images.githubusercontent.com/6300003/48395518-d451be80-e75a-11e8-8dde-335820574fab.png"></kbd>
 <br />
 
