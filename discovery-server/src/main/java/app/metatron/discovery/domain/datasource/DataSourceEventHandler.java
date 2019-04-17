@@ -34,6 +34,7 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
 import org.quartz.CronScheduleBuilder;
 import org.quartz.JobDataMap;
 import org.quartz.JobKey;
@@ -61,10 +62,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 
+import app.metatron.discovery.domain.activities.ActivityStreamService;
+import app.metatron.discovery.domain.activities.spec.ActivityGenerator;
+import app.metatron.discovery.domain.activities.spec.ActivityObject;
+import app.metatron.discovery.domain.activities.spec.ActivityStreamV2;
 import app.metatron.discovery.domain.context.ContextService;
 import app.metatron.discovery.domain.dataconnection.DataConnection;
 import app.metatron.discovery.domain.dataconnection.DataConnectionRepository;
@@ -80,6 +86,7 @@ import app.metatron.discovery.domain.datasource.ingestion.job.IngestionJobRunner
 import app.metatron.discovery.domain.engine.DruidEngineMetaRepository;
 import app.metatron.discovery.domain.engine.EngineIngestionService;
 import app.metatron.discovery.domain.geo.GeoService;
+import app.metatron.discovery.domain.mdm.Metadata;
 import app.metatron.discovery.domain.mdm.MetadataService;
 import app.metatron.discovery.domain.workspace.Workspace;
 import app.metatron.discovery.util.AuthUtils;
@@ -137,6 +144,9 @@ public class DataSourceEventHandler {
 
   @Autowired
   DataSourceQueryHistoryRepository dataSourceQueryHistoryRepository;
+
+  @Autowired
+  ActivityStreamService activityStreamService;
 
   @Autowired(required = false)
   Scheduler scheduler;
@@ -260,6 +270,12 @@ public class DataSourceEventHandler {
       ingestionHistoryRepository.save(histroy);
     }
 
+    // save context from domain
+    contextService.saveContextFromDomain(dataSource);
+
+    // create metadata from datasource
+    metadataService.saveFromDataSource(dataSource);
+
     // 수집 경로가 아닌 경우 Pass
     if (dataSource.getIngestion() == null) {
       return;
@@ -307,12 +323,27 @@ public class DataSourceEventHandler {
   @PreAuthorize("hasAuthority('PERM_SYSTEM_MANAGE_DATASOURCE')")
   public void handleBeforeLinkSave(DataSource dataSource, Object linked) {
 
-    // 연결된 워크스페이스 개수 처리,
-    // PATCH 일경우 linked 객체에 값이 주입되나 PUT 인경우 값이 주입되지 않아
-    // linked 객체 체크를 수행하지 않음
+    // Count connected workspaces.
+    // a value is injected to linked object when PATCH,
+    // but not injected when PUT request so doesn't check linked object.
     if (BooleanUtils.isNotTrue(dataSource.getPublished())) {
       dataSource.setLinkedWorkspaces(dataSource.getWorkspaces().size());
-      LOGGER.debug("UPDATED: Set linked workspace in datasource({}) : {}", dataSource.getId(), dataSource.getLinkedWorkspaces());
+
+      // Insert ActivityStream for saving grant history.
+      if(!CollectionUtils.sizeIsEmpty(linked) && CollectionUtils.get(linked, 0) instanceof Workspace) {
+        for (int i = 0; i < CollectionUtils.size(linked); i++) {
+          Workspace linkedWorkspace = (Workspace) CollectionUtils.get(linked, i);
+          if (!linkedWorkspace.getDataSources().contains(dataSource)) {
+            activityStreamService.addActivity(new ActivityStreamV2(
+                null, null, "Accept", null, null
+                , new ActivityObject(dataSource.getId(),"DATASOURCE")
+                , new ActivityObject(linkedWorkspace.getId(), "WORKSPACE"),
+                new ActivityGenerator("WEBAPP",""), DateTime.now()));
+
+            LOGGER.debug("[Activity] Accept workspace ({}) to datasource ({})", linkedWorkspace.getId(), dataSource.getId());
+          }
+        }
+      }
     }
   }
 
@@ -395,13 +426,27 @@ public class DataSourceEventHandler {
   @PreAuthorize("hasAuthority('PERM_SYSTEM_MANAGE_DATASOURCE')")
   public void handleBeforeLinkDelete(DataSource dataSource, Object linked) {
 
-    // 연결된 워크스페이스 개수 처리,
-    // 전체 공개 워크스페이스가 아니고 linked 내 Entity 타입이 Workspace 인 경우
+    // Count connected workspaces.
+    // Not a public workspace and linked entity type is Workspace.
     if (BooleanUtils.isNotTrue(dataSource.getPublished()) &&
         !CollectionUtils.sizeIsEmpty(linked) &&
         CollectionUtils.get(linked, 0) instanceof Workspace) {
       dataSource.setLinkedWorkspaces(dataSource.getWorkspaces().size());
       LOGGER.debug("DELETED: Set linked workspace in datasource({}) : {}", dataSource.getId(), dataSource.getLinkedWorkspaces());
+
+      Set<Workspace> preWorkspaces = dataSourceRepository.findWorkspacesInDataSource(dataSource.getId());
+
+      for (Workspace workspace : preWorkspaces) {
+        if(!dataSource.getWorkspaces().contains(workspace)) {
+          activityStreamService.addActivity(new ActivityStreamV2(
+              null, null, "Block", null, null,
+              new ActivityObject(dataSource.getId(), "DATASOURCE"),
+              new ActivityObject(workspace.getId(), "WORKSPACE"),
+              new ActivityGenerator("WEBAPP", ""), DateTime.now()));
+
+          LOGGER.debug("[Activity] Block workspace ({}) from datasource ({})", workspace.getId(), dataSource.getId());
+        }
+      }
     }
 
   }
@@ -428,6 +473,14 @@ public class DataSourceEventHandler {
       engineIngestionService.shutDownIngestionTask(dataSource.getId());
       LOGGER.debug("Successfully shutdown ingestion tasks in datasource ({})", dataSource.getId());
 
+      // Delete datastore on geoserver if datasource include geo column
+      if (dataSource.getIncludeGeo() == null) {
+        LOGGER.debug("Datasource with previous schema, skip removing geo service");
+      } else if (dataSource.getIncludeGeo()) {
+        geoService.deleteDataStore(dataSource.getEngineName());
+        LOGGER.debug("Successfully delete datastore on geoserver ({})", dataSource.getId());
+      }
+
       // Disable DataSource
       try {
         engineMetaRepository.disableDataSource(dataSource.getEngineName());
@@ -446,6 +499,16 @@ public class DataSourceEventHandler {
         dataSourceQueryHistoryRepository.deleteQueryHistoryById(dataSource.getId());
       } catch (Exception e) {
         LOGGER.warn("Fail to remove history related datasource({}) : {} ", dataSource.getId(), e.getMessage());
+      }
+
+      // Delete Metadata
+      try{
+        Optional<Metadata> metadata = metadataService.findByDataSource(dataSource.getId());
+        if(metadata.isPresent()){
+          metadataService.delete(metadata.get().getId());
+        }
+      } catch (Exception e){
+        LOGGER.warn("Fail to remove metadata related datasource({}) : {} ", dataSource.getId(), e.getMessage());
       }
     }
 

@@ -12,8 +12,8 @@
  * limitations under the License.
  */
 
-import {AfterViewInit, ChangeDetectorRef, ElementRef, HostListener, Injector, OnDestroy, OnInit} from '@angular/core';
 import * as $ from 'jquery';
+import {AfterViewInit, ChangeDetectorRef, ElementRef, HostListener, Injector, OnDestroy, OnInit} from '@angular/core';
 import {Router} from '@angular/router';
 import {Loading} from '../util/loading.util';
 import {TranslateService} from '@ngx-translate/core';
@@ -37,6 +37,9 @@ import {Observable} from 'rxjs';
 import {filter, map} from 'rxjs/operators';
 import {isUndefined} from "util";
 import {ImplementorType} from "../../domain/dataconnection/dataconnection";
+import {LogicalType} from '../../domain/datasource/datasource';
+
+declare let moment;
 
 export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanComponentDeactivate {
 
@@ -247,6 +250,18 @@ export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanC
   public isPermissionManager() {
     return CommonUtil.isValidPermission(SYSTEM_PERMISSION.MANAGE_WORKSPACE);
   } // function - isPermissionManager
+
+  /**
+   * moment 재정의
+   * @param date
+   */
+  public customMoment( date:(Date|string) ) {
+    if (date.constructor === String) {
+      return moment((<string>date).replace('.000Z', ''));
+    } else {
+      return moment(date);
+    }
+  } // function - customMoment
 
   // noinspection JSMethodCanBeStatic
   /**
@@ -556,6 +571,21 @@ export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanC
       {label: this.translateService.instant('msg.metadata.ui.dictionary.type.gu'), value: 'GU', icon: ''},
       {label: this.translateService.instant('msg.metadata.ui.dictionary.type.dong'), value: 'DONG', icon: ''},
       {label: this.translateService.instant('msg.metadata.ui.dictionary.type.etc'), value: 'ETC', icon: ''},
+      {
+        label: this.translateService.instant('msg.storage.ui.list.geo.point'),
+        value: LogicalType.GEO_POINT,
+        icon: 'ddp-icon-type-point'
+      },
+      {
+        label: this.translateService.instant('msg.storage.ui.list.geo.polygon'),
+        value: LogicalType.GEO_POLYGON,
+        icon: 'ddp-icon-type-polygon'
+      },
+      {
+        label: this.translateService.instant('msg.storage.ui.list.geo.line'),
+        value: LogicalType.GEO_LINE,
+        icon: 'ddp-icon-type-line'
+      },
     ];
   }
 
@@ -629,7 +659,7 @@ export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanC
     let connImgUrl = '';
     switch (impType) {
       case ImplementorType.MYSQL:
-        connImgUrl = location.origin + '/assets/images/img_db/ic_db_mysql.png';
+        connImgUrl = location.origin + '/assets/images/img_db/ic-db-mysql.png';
         break;
       case ImplementorType.HIVE:
         connImgUrl = location.origin + '/assets/images/img_db/ic_db_hive.png';
@@ -660,22 +690,22 @@ export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanC
     let connImgUrl = '';
     switch (impType) {
       case ImplementorType.MYSQL:
-        connImgUrl = location.origin + '/assets/images/img_db/ic_db_mysql.png';
+        connImgUrl = location.origin + '/assets/images/img_db/ic-db-mysql-w.png';
         break;
       case ImplementorType.HIVE:
-        connImgUrl = location.origin + '/assets/images/img_db/ic_db_hive.png';
+        connImgUrl = location.origin + '/assets/images/img_db/ic_db_hive_w.png';
         break;
       case ImplementorType.DRUID:
-        connImgUrl = location.origin + '/assets/images/img_db/ic_db_druid.png';
+        connImgUrl = location.origin + '/assets/images/img_db/ic_db_druid_w.png';
         break;
       case ImplementorType.POSTGRESQL:
-        connImgUrl = location.origin + '/assets/images/img_db/ic_db_post.png';
+        connImgUrl = location.origin + '/assets/images/img_db/ic_db_post_w.png';
         break;
       case ImplementorType.PRESTO:
-        connImgUrl = location.origin + '/assets/images/img_db/ic_db_presto.png';
+        connImgUrl = location.origin + '/assets/images/img_db/ic_db_presto_w.png';
         break;
       default:
-        connImgUrl = imgResource ? imgResource : location.origin + '/assets/images/img_db/ic_DB.png';
+        connImgUrl = imgResource ? imgResource : location.origin + '/assets/images/img_db/ic_db_w.png';
         break;
     }
     return connImgUrl;

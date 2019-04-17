@@ -93,6 +93,12 @@ export class CreateDatasetDataTypeComponent extends AbstractPopupComponent imple
           data: null
         });
         break;
+      case 'url' :
+        this.popupService.notiPopup({
+          name: 'select-url',
+          data: null
+        });
+        break;
     }
   } // function - next
 
@@ -125,7 +131,7 @@ export class CreateDatasetDataTypeComponent extends AbstractPopupComponent imple
    * Check if staging db is enabled
    */
   public isStagingEnabled() : boolean {
-    return StorageService.isEnableStageDB
+    return StorageService.isEnableStageDB;
   }
 
 

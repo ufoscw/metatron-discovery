@@ -49,13 +49,14 @@ import {CommonUtil} from '../../util/common.util';
 import {DataDownloadComponent, PreviewResult} from '../data-download/data.download.component';
 import {MetadataColumn} from '../../../domain/meta-data-management/metadata-column';
 import {DashboardUtil} from '../../../dashboard/util/dashboard.util';
-import {ImplementorType, Dataconnection} from '../../../domain/dataconnection/dataconnection';
+import {ImplementorType, Dataconnection, AuthenticationType} from '../../../domain/dataconnection/dataconnection';
 import {PeriodData} from "../../value/period.data.value";
 import {TimeRangeFilter} from "../../../domain/workbook/configurations/filter/time-range-filter";
 import {Filter} from "../../../domain/workbook/configurations/filter/filter";
 import {DIRECTION, Sort} from "../../../domain/workbook/configurations/sort";
 import {TimezoneService} from "../../../data-storage/service/timezone.service";
 import {StringUtil} from "../../util/string.util";
+import {StorageService} from "../../../data-storage/service/storage.service";
 
 declare let echarts: any;
 
@@ -100,6 +101,8 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
   private _filters: Filter[] = [];
 
   private _queryParams = new QueryParam();
+
+  private _isGridDataDown:boolean = true;
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -114,9 +117,13 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
   // 필드 디테일 single data
   @Input()
   public singleTab: boolean = false;
+
   // sigle 일때 넘겨받은 필드
   @Input()
   public field: any;
+
+  @Input()
+  public initial:Datasource;
 
   public isDashboard: boolean = false;    // 입력 소스가 대시보드인지 여부
 
@@ -188,6 +195,7 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
   constructor(private datasourceService: DatasourceService,
               private connectionService: DataconnectionService,
               private timezoneService: TimezoneService,
+              private storageService: StorageService,
               protected elementRef: ElementRef,
               protected injector: Injector) {
     super(elementRef, injector);
@@ -231,7 +239,8 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
         }
       });
     });
-    this.selectDataSource(this.datasources[0]);
+
+    this.selectDataSource( ( this.initial ) ? this.datasources.find( item => item.id === this.initial.id ) : this.datasources[0] );
 
   } // function - ngOnInit
 
@@ -332,32 +341,11 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
   private queryData(source: Datasource): Promise<any> {
     return new Promise<any>((res, rej) => {
 
-      const params = new QueryParam();
+      let params = new QueryParam();
       params.limits.limit = this.rowNum < 1 ? 100 : this.rowNum;
       if (this.isDashboard) {
         // 대시보드인 경우
-
-        if (this.timestampField) {
-          const sortInfo: Sort = new Sort();
-          sortInfo.field = this.timestampField.name;
-          sortInfo.direction = DIRECTION.DESC;
-          params.limits.sort.push(sortInfo);
-        }
-
-        let boardDs: BoardDataSource = (<Dashboard>this.source).configuration.dataSource;
-        if ('multi' === boardDs.type) {
-          boardDs = boardDs.dataSources.find(item => DashboardUtil.isSameDataSource(item, source));
-        }
-
-        params.dataSource = _.cloneDeep(boardDs);
-        params.dataSource.name = boardDs.engineName;
-        const joins = boardDs.joins;
-        if (joins && joins.length > 0) {
-          this.isJoin = true;
-          this.joinMappings = joins;
-          params.dataSource.type = 'mapping';
-          params.dataSource['joins'] = joins;
-        }
+        params = this._getDashboardQueryParam( source, (<Dashboard>this.source), params );
       } else {
         // 데이터소스인 경우
         const dsInfo = _.cloneDeep(<Datasource>source);
@@ -540,9 +528,17 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
     // 프리셋을 생성한 연결형 : source.connection 사용
     // 커넥션 정보로 생성한 연결형 : source.ingestion.connection 사용
     const connection: Dataconnection = source.connection || source.ingestion.connection;
-    const params = source.ingestion && connection
+    const params:any = source.ingestion && connection
       ? this._getConnectionParams(source.ingestion, connection)
       : {};
+
+    if( !this._isGridDataDown ) {
+      // 다운로드 파라메터 설정 -> Linked Data Source 데이터를 Druid에서 받아서 다운로드 할 경우에는 아래의 코드가 필요
+      const downloadParams = this._getDashboardQueryParam( source, (<Dashboard>this.source) );
+      downloadParams.limits.limit = 10000000;
+      this._queryParams = _.cloneDeep(downloadParams);
+    }
+
     this.connectionService.getTableDetailWitoutId(params, connection.implementor === ImplementorType.HIVE, this.rowNum < 1 ? 100 : this.rowNum)
       .then((result: {data: any, fields: Field[], totalRows: number}) => {
         // grid data
@@ -556,6 +552,40 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
       .catch(error => this.commonExceptionHandler(error));
   }
 
+  /**
+   * 대시보드 타입에 대한 데이터 조회 파라메터 생성
+   * @param {Datasource} dataSource
+   * @param {Dashboard} board
+   * @param {QueryParam} params
+   * @return {QueryParam}
+   * @private
+   */
+  private _getDashboardQueryParam(dataSource:Datasource, board:Dashboard, params?:QueryParam):QueryParam {
+    ( params ) || ( params = new QueryParam() );
+    if (this.timestampField) {
+      const sortInfo: Sort = new Sort();
+      sortInfo.field = this.timestampField.name;
+      sortInfo.direction = DIRECTION.DESC;
+      params.limits.sort.push(sortInfo);
+    }
+
+    let boardDs: BoardDataSource = board.configuration.dataSource;
+    if ('multi' === boardDs.type) {
+      boardDs = boardDs.dataSources.find(item => DashboardUtil.isSameDataSource(item, dataSource));
+    }
+
+    params.dataSource = _.cloneDeep(boardDs);
+    params.dataSource.name = boardDs.engineName;
+    const joins = boardDs.joins;
+    if (joins && joins.length > 0) {
+      this.isJoin = true;
+      this.joinMappings = joins;
+      params.dataSource.type = 'mapping';
+      params.dataSource['joins'] = joins;
+    }
+    return params;
+  } // function - _getDashboardQueryParam
+
   // noinspection JSMethodCanBeStatic
   /**
    * 커넥션 파라메터
@@ -564,41 +594,36 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
    * @return {{connection: {hostname: any,port: any,username: any,password: any,implementor: any},database: any,type: any, query: any}}
    * @private
    */
-  private _getConnectionParams(ingestion: any, connection: any) {
+  private _getConnectionParams(ingestion: any, connection: Dataconnection) {
+    const connectionType = this.storageService.findConnectionType(connection.implementor);
     const params = {
       connection: {
-        hostname: connection.hostname,
-        port: connection.port,
         implementor: connection.implementor,
-        authenticationType: connection.authenticationType || 'MANUAL'
+        authenticationType: connection.authenticationType || AuthenticationType.MANUAL
       },
       database: ingestion.database,
       type: ingestion.dataType,
       query: ingestion.query
     };
-    // TODO #1573 추후 extensions 스펙에 맞게 변경 필요
-    // if exist sid
-    if (StringUtil.isNotEmpty(connection.sid)) {
-      params.connection['sid'] = connection.sid;
-    }
-    // if exist database
-    if (StringUtil.isNotEmpty(connection.database)) {
-      params.connection['database'] = connection.database;
-    }
-    // if exist catalog
-    if (StringUtil.isNotEmpty(connection.catalog)) {
-      params.connection['catalog'] = connection.catalog;
+    // if not used URL
+    if (StringUtil.isEmpty(connection.url)) {
+      params.connection['hostname'] = connection.hostname;
+      params.connection['port'] = connection.port;
+      if (this.storageService.isRequireCatalog(connectionType)) {
+        params.connection['catalog'] = connection.catalog;
+      } else if (this.storageService.isRequireDatabase(connectionType)) {
+        params.connection['database'] = connection.database;
+      } else if (this.storageService.isRequireSid(connectionType)) {
+        params.connection['sid'] = connection.sid;
+      }
+    } else {  // if used URL
+      params.connection['url'] = connection.url;
     }
     // if security type is not USERINFO, add password and username
-    if (connection.authenticationType !== 'USERINFO') {
-      params['connection']['username'] = connection.authenticationType === 'DIALOG' ? ingestion.connectionUsername : connection.username;
-      params['connection']['password'] = connection.authenticationType === 'DIALOG' ? ingestion.connectionPassword : connection.password;
+    if (connection.authenticationType !== AuthenticationType.USERINFO) {
+      params.connection['username'] = connection.authenticationType === AuthenticationType.DIALOG ? ingestion.connectionUsername : connection.username;
+      params.connection['password'] = connection.authenticationType === AuthenticationType.DIALOG ? ingestion.connectionPassword : connection.password;
     }
-    // 데이터 베이스가 있는경우
-    if (ingestion.connection && ingestion.connection.hasOwnProperty('database')) {
-      params['connection']['database'] = ingestion.connection.database;
-    }
-
     return params;
   }
 
@@ -1496,14 +1521,18 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
     event.preventDefault();
     event.stopPropagation();
 
-    this.loadingShow();
-    this.datasourceService.getDatasourceQuery(this._queryParams).then(downData => {
-      this._dataDownComp.openDataDown(event, this.columns, downData, this.downloadPreview);
-      this.loadingHide();
-    }).catch((err) => {
+    if (this.connType === 'LINK' && this._isGridDataDown) {
+      this._dataDownComp.openDataDown(event, this.columns, this.gridData, this.downloadPreview);
+    } else {
+      this.loadingShow();
+      this.datasourceService.getDatasourceQuery(this._queryParams).then(downData => {
+        this._dataDownComp.openDataDown(event, this.columns, downData, this.downloadPreview);
+        this.loadingHide();
+      }).catch(() => {
+        this.loadingHide();
+      });
+    }
 
-      this.loadingHide();
-    });
   } // function - downloadData
 
   /**

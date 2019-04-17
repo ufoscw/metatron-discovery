@@ -26,6 +26,7 @@ import { CreateDatasetComponent } from './dataset/create-dataset/create-dataset.
 import { CreateDatasetDataTypeComponent } from './dataset/create-dataset/create-dataset-datatype.component';
 import { CreateDatasetSelectfileComponent } from './dataset/create-dataset/create-dataset-selectfile.component';
 import { CreateDatasetSelectsheetComponent } from './dataset/create-dataset/create-dataset-selectsheet.component';
+import { CreateDatasetSelecturlComponent } from './dataset/create-dataset/create-dataset-selecturl.component';
 import { CreateDatasetStagingSelectdataComponent } from './dataset/create-dataset/create-dataset-staging-selectdata.component';
 import { DatasetService } from './dataset/service/dataset.service';
 import { FileModule } from '../common/file.module';
@@ -86,6 +87,7 @@ import {MultipleRenamePopupComponent} from "./dataflow/dataflow-detail/component
 import {DataSourceCreateModule} from "../data-storage/data-source-list/create-data-source/data-source-create.module";
 import {DataconnectionService} from "../dataconnection/service/dataconnection.service";
 import {DataflowDetail2Component} from "./dataflow/dataflow-detail/dataflow-detail2.component";
+import {DataStorageShareModule} from "../data-storage/data-storage-share.module";
 
 
 const dataPreparationRoutes: Routes = [
@@ -106,7 +108,8 @@ const dataPreparationRoutes: Routes = [
     RouterModule.forChild(dataPreparationRoutes),
     SplitPaneModule,
     WorkbenchEditorModule,
-    DataSourceCreateModule
+    DataSourceCreateModule,
+    DataStorageShareModule
   ],
   declarations: [
     DataPreparationComponent,
@@ -116,6 +119,7 @@ const dataPreparationRoutes: Routes = [
     CreateDatasetDataTypeComponent,
     CreateDatasetSelectfileComponent,
     CreateDatasetSelectsheetComponent,
+    CreateDatasetSelecturlComponent,
     CreateDatasetStagingSelectdataComponent,
     DataSnapshotComponent,
     CreateDatasetDbSelectComponent,

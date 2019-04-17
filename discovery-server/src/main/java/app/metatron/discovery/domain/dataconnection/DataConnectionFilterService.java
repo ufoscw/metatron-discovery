@@ -41,6 +41,7 @@ import app.metatron.discovery.domain.user.role.RoleDirectoryRepository;
 import app.metatron.discovery.domain.workspace.Workspace;
 import app.metatron.discovery.domain.workspace.WorkspaceRepository;
 import app.metatron.discovery.domain.workspace.WorkspaceService;
+import app.metatron.discovery.extension.dataconnection.jdbc.dialect.JdbcDialect;
 import app.metatron.discovery.util.AuthUtils;
 
 /**
@@ -72,6 +73,9 @@ public class DataConnectionFilterService {
 
   @Autowired
   DataConnectionProperties dataConnectionProperties;
+
+  @Autowired
+  List<JdbcDialect> jdbcDialects;
 
   public List<ListCriterion> getListCriterion(){
 
@@ -118,11 +122,9 @@ public class DataConnectionFilterService {
 
     switch(criterionKey){
       case IMPLEMENTOR:
-        criterion.addFilter(new ListFilter(criterionKey, "implementor", "MYSQL", "MySQL"));
-        criterion.addFilter(new ListFilter(criterionKey, "implementor", "POSTGRESQL", "PostgreSQL"));
-        criterion.addFilter(new ListFilter(criterionKey, "implementor", "HIVE", "Hive"));
-        criterion.addFilter(new ListFilter(criterionKey, "implementor", "PRESTO", "Presto"));
-        criterion.addFilter(new ListFilter(criterionKey, "implementor", "DRUID", "Druid"));
+        for(JdbcDialect jdbcDialect : jdbcDialects){
+          criterion.addFilter(new ListFilter(criterionKey, "implementor", jdbcDialect.getImplementor(), jdbcDialect.getName()));
+        }
         break;
       case AUTH_TYPE:
         criterion.addFilter(new ListFilter(criterionKey, "authenticationType", DataConnection.AuthenticationType.MANUAL.toString(), "msg.storage.li.connect.always"));
@@ -210,6 +212,7 @@ public class DataConnectionFilterService {
         //allow search
         criterion.setSearchable(true);
 
+        //published workspace
         criterion.addFilter(new ListFilter(criterionKey, "published", "true", "msg.storage.ui.criterion.open-data"));
 
         //my private workspace
@@ -217,10 +220,18 @@ public class DataConnectionFilterService {
         criterion.addFilter(new ListFilter(criterionKey, "workspace",
                 myWorkspace.getId(), myWorkspace.getName()));
 
-        //my public workspace
-        List<Workspace> publicWorkspaces
+        //owner public workspace not published
+        List<Workspace> ownerPublicWorkspaces
+            = workspaceService.getPublicWorkspaces(false, true, false, null);
+        for(Workspace workspace : ownerPublicWorkspaces){
+          criterion.addFilter(new ListFilter(criterionKey, "workspace",
+                                             workspace.getId(), workspace.getName()));
+        }
+
+        //member public workspace not published
+        List<Workspace> memberPublicWorkspaces
                 = workspaceService.getPublicWorkspaces(false, false, false, null);
-        for(Workspace workspace : publicWorkspaces){
+        for(Workspace workspace : memberPublicWorkspaces){
           criterion.addFilter(new ListFilter(criterionKey, "workspace",
                   workspace.getId(), workspace.getName()));
         }
