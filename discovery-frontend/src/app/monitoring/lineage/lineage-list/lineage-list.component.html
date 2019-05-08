@@ -1,0 +1,179 @@
+ <!-- top option -->
+  <div class="ddp-type-top-option ddp-clear">
+
+    <!-- search -->
+    <div class="ddp-form-search ddp-fleft ddp-none">
+      <em class="ddp-icon-search"></em>
+      <input type="text" placeholder="{{'msg.lineage.ui.download.title.placeholder'| translate}}">
+      <em class="ddp-btn-search-close"></em>
+    </div>
+    <!-- //search -->
+
+    <div class="ddp-ui-rightoption">
+      <div class="ddp-wrap-iconbuttons">
+        <em class="sys-icon-down ddp-icon-widget-gridsave ddp-hover-tooltip" (click)="download(null, 'lineage_data.csv')">
+          <div class="ddp-ui-tooltip-info ddp-down">
+            <em class="ddp-icon-view-top"></em>
+            {{'msg.lineage.ui.download.title.current' | translate}}
+          </div>
+        </em>
+        <input [(ngModel)]="downloadDepth"
+               type="text" class="sys-input-down-depth ddp-input-typebasic" >
+        <em class="sys-icon-down ddp-icon-widget-store ddp-hover-tooltip" (click)="downloadAll()">
+          <div class="ddp-ui-tooltip-info ddp-down">
+            <em class="ddp-icon-view-top"></em>
+            {{'msg.lineage.ui.download.title.entire' | translate}}
+          </div>
+        </em>
+      </div>
+    </div>
+  </div>
+  <!-- //top option -->
+  <div class="ddp-wrap-box">
+    <div class="ddp-wrap-box-flow">
+      <!-- box flow -->
+      <div class="ddp-box-flow">
+        <div class="ddp-data-flow">
+          <div class="ddp-title">
+            {{'msg.lineage.ui.download.title.from'| translate}}
+          </div>
+          <div class="ddp-wrap-table">
+
+            <table class="ddp-table-grid">
+              <colgroup>
+                <col width="55px">
+                <col width="*">
+                <col width="20%">
+              </colgroup>
+              <thead>
+              <tr>
+                <th class="ddp-txt-center">
+                  {{'msg.comm.th.no' | translate}}
+                </th>
+                <th>
+                  {{'msg.lineage.ui.list.title.table' | translate}}
+                </th>
+                <th>
+                  {{'msg.lineage.ui.list.title.column' | translate}}
+                </th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr *ngFor="let item of lineageEdges;let i = index" [attr.data-index]="i">
+                <td class="ddp-txt-center">
+                  {{i+1}}
+                </td>
+                <td>
+                  <em class="ddp-icon-mt-{{item.toType | lowercase}}"></em>{{item.fromTable}}
+                </td>
+                <td>
+                  {{item.fromColumn}}
+                </td>
+              </tr>
+              </tbody>
+
+            </table>
+          </div>
+        </div>
+      </div>
+      <!-- //box flow -->
+      <div class="ddp-box-flow ddp-center">
+        <!-- flow line -->
+        <div class="ddp-icon-flowline"></div>
+        <!-- //flow line -->
+        <!-- dot flow line -->
+        <div class="ddp-icon-flowline ddp-type-dot"></div>
+        <!-- //dot flow line -->
+
+
+        <!-- flow line -->
+        <div class="ddp-icon-flowline ddp-right"></div>
+        <!-- //flow line -->
+        <!-- dot flow line -->
+        <div class="ddp-icon-flowline ddp-type-dot ddp-right"></div>
+        <!-- //dot flow line -->
+        <div class="ddp-data-flow">
+          <div class="ddp-title">
+            {{'msg.lineage.ui.download.title.path'| translate}}
+          </div>
+          <div class="ddp-wrap-table">
+
+            <table class="ddp-table-grid">
+              <colgroup>
+                <col width="55px">
+                <col width="*">
+              </colgroup>
+              <thead>
+              <tr>
+                <th class="ddp-txt-center">
+                  {{'msg.comm.th.no' | translate}}
+                </th>
+                <th>
+                  {{'msg.lineage.ui.list.title.sql' | translate}}
+                </th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr *ngFor="let item of lineageEdges;let i = index" [attr.data-index]="i">
+                <td class="ddp-txt-center">
+                  {{i+1}}
+                </td>
+                <td>
+                  {{item.path | slice:0:35}}
+                </td>
+              </tr>
+
+              </tbody>
+
+            </table>
+          </div>
+        </div>
+      </div>
+      <!-- box flow -->
+      <div class="ddp-box-flow ddp-last">
+        <div class="ddp-data-flow">
+          <div class="ddp-title">
+            {{'msg.lineage.ui.download.title.to'| translate}}
+          </div>
+          <div class="ddp-wrap-table">
+
+            <table class="ddp-table-grid">
+              <colgroup>
+                <col width="55px">
+                <col width="*">
+                <col width="30%">
+              </colgroup>
+              <thead>
+              <tr>
+                <th class="ddp-txt-center">
+                  {{'msg.comm.th.no' | translate}}
+                </th>
+                <th>
+                  {{'msg.lineage.ui.list.title.table' | translate}}
+                </th>
+                <th>
+                  {{'msg.lineage.ui.list.title.column' | translate}}
+                </th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr *ngFor="let item of lineageEdges;let i = index" [attr.data-index]="i">
+                <td class="ddp-txt-center">
+                  {{i+1}}
+                </td>
+                <td>
+                  <em class="ddp-icon-mt-{{item.toType | lowercase}}"></em>{{item.toTable}}
+                </td>
+                <td>
+                  {{item.toColumn}}
+                </td>
+              </tr>
+              </tbody>
+
+            </table>
+          </div>
+        </div>
+      </div>
+      <!-- //box flow -->
+    </div>
+  </div>

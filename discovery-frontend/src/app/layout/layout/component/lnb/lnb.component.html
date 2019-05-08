@@ -204,6 +204,9 @@
                 <li>
                   <a href="javascript:" (click)="move('management/monitoring/audit')">{{'msg.comm.menu.manage.monitoring.audit' | translate}}</a>
                 </li>
+                <li>
+                  <a href="javascript:" (click)="move('management/monitoring/lineage')">{{'msg.comm.menu.manage.monitoring.data-lineage' | translate}}</a>
+                </li>
               </ul>
             </li>
             <ng-container *ngIf="permission.managementDatasource">

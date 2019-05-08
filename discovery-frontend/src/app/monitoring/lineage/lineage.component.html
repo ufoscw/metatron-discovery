@@ -1,0 +1,306 @@
+
+<em *ngIf="'lineage-detail' !== step" class="ddp-bg-back"></em>
+<div *ngIf="'lineage-detail' !== step"  class="ddp-ui-contents-in">
+  <!-- top -->
+  <div class="ddp-ui-contents-top">
+    <div class="ddp-ui-title">
+      {{'msg.comm.menu.manage.monitoring' | translate}}
+    </div>
+
+    <!-- tab -->
+    <ul class="ddp-list-top-tab">
+      <li>
+        <a [routerLink]="['/management/monitoring/statistics']">{{'msg.comm.menu.manage.monitoring.statistics' | translate}}</a>
+      </li>
+      <li>
+        <a [routerLink]="['/management/monitoring/audit']">{{'msg.comm.menu.manage.monitoring.audit' | translate}}</a>
+      </li>
+      <li class="ddp-selected">
+        <a [routerLink]="['/management/monitoring/lineage']">{{'msg.comm.menu.manage.monitoring.data-lineage' | translate}}</a>
+      </li>
+    </ul>
+    <!-- //tab -->
+
+  </div>
+  <!-- //top -->
+
+  <div class="ddp-ui-contents-list">
+
+    <div class="ddp-box-searching">
+      <!-- form -->
+      <div class="ddp-form-searching">
+        <em class="ddp-icon-searching"></em>
+        <input type="text" placeholder="{{'msg.lineage.ui.list.search.placeholder' | translate}}" [(ngModel)]="searchText" (keyup.esc)="searchText=''; searchLineage(true)" (keyup.enter)="searchLineage(true)">
+
+      </div>
+      <!-- //form -->
+      <div class="ddp-ui-edit-option ddp-inline" style="margin-left:10px;">
+        <label class="ddp-label-radio" style="margin-left:40px;">
+          <input type="radio" [checked]="searchFormat == 'TABLE'" (click)="toggleTab('TABLE')">
+          <i class="ddp-icon-radio"></i>
+          <span class="ddp-txt-radio">{{'msg.lineage.ui.list.search.table' | translate}}</span>
+        </label>
+        <label class="ddp-label-radio" style="margin-left:40px;">
+          <input type="radio" [checked]="searchFormat == 'COLUMN'" (click)="toggleTab('COLUMN')">
+          <i class="ddp-icon-radio"></i>
+          <span class="ddp-txt-radio">{{'msg.lineage.ui.list.search.column' | translate}}</span>
+        </label>
+        <label class="ddp-label-radio" style="margin-left:40px;">
+          <input type="radio" [checked]="searchFormat == 'SQL'" (click)="toggleTab('SQL')">
+          <i class="ddp-icon-radio"></i>
+          <span class="ddp-txt-radio">{{'msg.lineage.ui.list.search.sql' | translate}}</span>
+        </label>
+        <label class="ddp-label-radio" style="margin-left:40px;">
+          <input type="radio" [checked]="searchFormat == 'WORKFLOW'" (click)="toggleTab('WORKFLOW')">
+          <i class="ddp-icon-radio"></i>
+          <span class="ddp-txt-radio">{{'msg.lineage.ui.list.search.workflow' | translate}}</span>
+        </label>
+      </div>
+
+    </div>
+
+    <!-- data monitoring -->
+    <div class="ddp-data-monitoring" *ngIf="searchFormat=='TABLE'">
+      <div class="ddp-list-title">
+        <em class="ddp-icon-table"></em>{{'msg.lineage.ui.list.search.table' | translate}} ({{pageResult.totalElements}})
+      </div>
+      <!-- data none -->
+      <div class="ddp-data-none" *ngIf="pageResult.totalElements == 0">
+        {{'msg.lineage.ui.list.search.nodata' | translate}}
+      </div>
+      <!-- //data none -->
+      <table class="ddp-table-list ddp-table-select" *ngIf="pageResult.totalElements != 0">
+        <colgroup>
+          <!--<col width="112px">-->
+          <col width="30%">
+          <col width="*">
+        </colgroup>
+        <thead>
+        <tr>
+          <!--<th>-->
+            <!--{{'msg.lineage.ui.list.title.type' | translate}}-->
+          <!--</th>-->
+          <th>
+            {{'msg.lineage.ui.list.title.database' | translate}}
+          </th>
+          <th>
+            {{'msg.lineage.ui.list.title.table' | translate}}
+          </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let item of resultTableData" (click)="lineageTableDetail(item)">
+          <!--<td class="ddp-txt-center">-->
+            <!--<strong [ngClass]="{ 'ddp-strong': item.type=='TABLE', 'ddp-strong2': item.type=='COLUMN' }">[&nbsp;&nbsp;&nbsp;{{item.type}}&nbsp;&nbsp;&nbsp;]</strong>-->
+          <!--</td>-->
+          <td>
+            {{item.databaseName}}
+          </td>
+          <td>
+            <div class="ddp-txt-long">
+              {{item.tableName}}
+              <span class="ddp-txt-colortype" *ngIf="item.comment">-{{item.comment}}</span>
+            </div>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+
+      <!-- 더보기 -->
+      <div class="ddp-box-add-link" *ngIf="checkMoreContents" (click)="moreLineageList()">
+        <span class="ddp-link-type">{{'msg.comm.ui.more' | translate}}<em class="ddp-icon-view"></em></span>
+      </div>
+    </div>
+    <!-- //data monitoring -->
+
+    <!-- data monitoring -->
+    <div class="ddp-data-monitoring" *ngIf="searchFormat=='COLUMN'">
+      <div class="ddp-list-title">
+        <em class="ddp-icon-table"></em>{{'msg.lineage.ui.list.search.column' | translate}} ({{pageResult.totalElements}})
+      </div>
+      <!-- data none -->
+      <div class="ddp-data-none" *ngIf="pageResult.totalElements == 0">
+        {{'msg.lineage.ui.list.search.nodata' | translate}}
+      </div>
+      <!-- //data none -->
+      <table class="ddp-table-list ddp-table-select" *ngIf="pageResult.totalElements != 0">
+        <colgroup>
+          <!--<col width="112px">-->
+          <col width="15%">
+          <col width="*">
+          <col width="35%">
+          <col width="15%">
+        </colgroup>
+        <thead>
+        <tr>
+          <!--<th>-->
+            <!--{{'msg.lineage.ui.list.title.type' | translate}}-->
+          <!--</th>-->
+          <th>
+            {{'msg.lineage.ui.list.title.database' | translate}}
+          </th>
+          <th>
+            {{'msg.lineage.ui.list.title.table' | translate}}
+          </th>
+          <th>
+            {{'msg.lineage.ui.list.title.column' | translate}}
+          </th>
+          <th>
+            {{'msg.lineage.ui.list.title.type' | translate}}
+          </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let item of resultTableData" (click)="lineageTableDetail(item)">
+          <!--<td class="ddp-txt-center">-->
+            <!--<strong [ngClass]="{ 'ddp-strong': item.type=='TABLE', 'ddp-strong2': item.type=='COLUMN' }">[&nbsp;&nbsp;&nbsp;{{item.type}}&nbsp;&nbsp;&nbsp;]</strong>-->
+          <!--</td>-->
+          <td>
+            {{item.databaseName}}
+          </td>
+          <td>
+            <div class="ddp-txt-long">
+              {{item.tableName}}
+              <span class="ddp-txt-colortype" *ngIf="item.comment">-{{item.comment}}</span>
+            </div>
+          </td>
+          <td>
+            {{item.fieldName}}
+          </td>
+          <td>
+            {{item.fieldType}}
+          </td>
+        </tr>
+        </tbody>
+      </table>
+
+      <!-- 더보기 -->
+      <div class="ddp-box-add-link" *ngIf="checkMoreContents" (click)="moreLineageList()">
+        <span class="ddp-link-type">{{'msg.comm.ui.more' | translate}}<em class="ddp-icon-view"></em></span>
+      </div>
+    </div>
+    <!-- //data monitoring -->
+
+    <!-- data monitoring -->
+    <div class="ddp-data-monitoring" *ngIf="searchFormat=='SQL'">
+      <div class="ddp-list-title">
+        <em class="ddp-icon-datasource"></em>{{'msg.lineage.ui.list.search.sql' | translate}} ({{pageResult.totalElements}})
+      </div>
+      <!-- data none -->
+      <div class="ddp-data-none" *ngIf="pageResult.totalElements == 0">
+        {{'msg.lineage.ui.list.search.nodata' | translate}}
+      </div>
+      <!-- //data none -->
+      <table class="ddp-table-list ddp-table-select" *ngIf="pageResult.totalElements != 0">
+        <colgroup>
+          <!--<col width="112px">-->
+          <col width="*">
+          <col width="17%">
+        </colgroup>
+        <thead>
+        <tr>
+          <!--<th>-->
+            <!--{{'msg.lineage.ui.list.title.type' | translate}}-->
+          <!--</th>-->
+          <th>
+            {{'msg.lineage.ui.list.title.sql' | translate}}
+          </th>
+          <th>
+            {{'msg.lineage.ui.list.title.runtime' | translate}}
+          </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let item of resultSqlData" (click)="lineageSqlDetail(item)">
+          <!--<td class="ddp-txt-center">-->
+            <!--<strong class="ddp-strong">[&nbsp;&nbsp;SQL&nbsp;&nbsp;]</strong>-->
+          <!--</td>-->
+          <td>
+            <div class="ddp-txt-long">
+              {{item.sqlQuery}}
+            </div>
+          </td>
+          <td>
+            <div class="ddp-txt-sql">
+              {{item.timestamp | slice:0:19}}
+            </div>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+      <!-- 더보기 -->
+      <div class="ddp-box-add-link" *ngIf="checkMoreContents" (click)="moreLineageList()">
+        <span class="ddp-link-type">{{'msg.comm.ui.more' | translate}}<em class="ddp-icon-view"></em></span>
+      </div>
+    </div>
+
+    <!-- data monitoring -->
+    <div class="ddp-data-monitoring" *ngIf="searchFormat=='WORKFLOW'">
+      <div class="ddp-list-title">
+        <em class="ddp-icon-dataflow"></em>{{'msg.lineage.ui.list.search.workflow' | translate}} ({{pageResult.totalElements}})
+      </div>
+      <!-- data none -->
+      <div class="ddp-data-none" *ngIf="pageResult.totalElements == 0">
+        {{'msg.lineage.ui.list.search.nodata' | translate}}
+      </div>
+      <!-- //data none -->
+      <table class="ddp-table-list ddp-table-select" *ngIf="pageResult.totalElements != 0">
+        <colgroup>
+          <!--<col width="112px">-->
+          <col width="20%">
+          <!--<col width="100px">-->
+          <col width="20%">
+          <col width="*">
+          <col width="17%">
+        </colgroup>
+        <thead>
+        <tr>
+          <!--<th>-->
+            <!--{{'msg.lineage.ui.list.title.type' | translate}}-->
+          <!--</th>-->
+          <th>
+            {{'msg.lineage.ui.list.title.workflowName' | translate}}
+          </th>
+          <!--<th>-->
+            <!--{{'msg.lineage.ui.list.title.workflowId' | translate}}-->
+          <!--</th>-->
+          <th>
+            {{'msg.lineage.ui.list.title.sqlFileName' | translate}}
+          </th>
+          <th>
+            {{'msg.lineage.ui.list.title.sql' | translate}}
+          </th>
+          <th>
+            {{'msg.lineage.ui.list.title.runtime' | translate}}
+          </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let item of resultSqlData" (click)="lineageSqlDetail(item)">
+          <!--<td class="ddp-txt-center">-->
+            <!--<strong class="ddp-strong">[&nbsp;&nbsp;SQL&nbsp;&nbsp;]</strong>-->
+          <!--</td>-->
+          <td>{{item.workflowName}}</td>
+          <!--<td>{{item.workflowId}}</td>-->
+          <td>{{item.sqlFileName}}</td>
+          <td>
+            <div class="ddp-txt-long">
+              {{item.sqlQuery}}
+            </div>
+          </td>
+          <td>
+            <div class="ddp-txt-sql">
+              {{item.timestamp | slice:0:19}}
+            </div>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+      <!-- 더보기 -->
+      <div class="ddp-box-add-link" *ngIf="checkMoreContents" (click)="moreLineageList()">
+        <span class="ddp-link-type">{{'msg.comm.ui.more' | translate}}<em class="ddp-icon-view"></em></span>
+      </div>
+    </div>
+  </div>
+</div>
+<app-lineage-detail *ngIf="step=='lineage-detail'" [target]="target"></app-lineage-detail>

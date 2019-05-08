@@ -1,0 +1,310 @@
+  <div class="ddp-wrap-naviarea ddp-naviarea2 ddp-clear">
+    <div class="ddp-ui-navidata">
+      <div class="ddp-data-lineage-num">
+        <span *ngIf="lineageHistory.entities && lineageHistory.entities.length>0">{{lineageHistory.entities.length}} {{'msg.lineage.ui.detail.entities' | translate}}</span><span *ngIf="lineageHistory.entities && lineageHistory.entities.length>0"> {{lineageHistory.edges.length}} {{'msg.lineage.ui.detail.lineages' | translate}}</span>
+      </div>
+      <ul class="ddp-list-tab-button">
+        <li [class.ddp-selected]="viewMode === 'editor'" (click)="toggleViewMode('editor')">
+          <a href="javascript:"><em class="ddp-icon-lineage"></em></a>
+          <div class="ddp-ui-tooltip-info">
+            <em class="ddp-icon-view-top"></em>
+            {{'msg.comm.ui.list.editor.view' | translate}}
+          </div>
+        </li>
+        <li [class.ddp-selected]="viewMode === 'list'" (click)="toggleViewMode('list')">
+          <a href="javascript:"><em class="ddp-icon-listgrid"></em></a>
+          <div class="ddp-ui-tooltip-info">
+            <em class="ddp-icon-view-top"></em>
+            {{'msg.comm.ui.list.list.view' | translate}}
+          </div>
+        </li>
+      </ul>
+    </div>
+    <div class="ddp-wrap-navi">
+      <a href="javascript:" class="ddp-link-naviarea" (click)="close()"><em class="ddp-icon-navi"></em></a>
+      <em class="ddp-box-tag ddp-notebook">{{target.type}}</em>
+      <div class="ddp-ui-naviarea">
+        <div class="ddp-box-navi">
+          <div class="ddp-wrap-naviname">
+            <span class="ddp-txt-naviname">{{target.name}}</span>
+          </div>
+        </div>
+        <!--<div class="ddp-box-navidet">-->
+          <!--<div class="ddp-wrap-navidet">-->
+            <!--<span class="ddp-txt-navidet">description description description description</span>-->
+          <!--</div>-->
+        <!--</div>-->
+      </div>
+    </div>
+
+  </div>
+  <!-- navi
+  <div class="ddp-wrap-naviarea ddp-naviarea2 ddp-clear">
+    <a href="javascript:" class="ddp-link-naviarea" (click)="close()"><em class="ddp-icon-navi"></em></a>
+    <em class="ddp-box-tag ddp-notebook">{{target.type}}</em>
+    <div class="ddp-ui-naviarea">
+      <div class="ddp-box-navi">
+        <div class="ddp-wrap-naviname">
+          <span class="ddp-txt-naviname">{{target.name}}</span>
+        </div>
+      </div>
+    </div>
+    <div class="ddp-ui-navidata">
+      <div class="ddp-data-lineage-num">
+        <span *ngIf="lineageHistory.entities && lineageHistory.entities.length>0">{{lineageHistory.entities.length}} entities</span><span *ngIf="lineageHistory.entities && lineageHistory.entities.length>0"> {{lineageHistory.edges.length}} lineages</span>
+      </div>
+      <ul class="ddp-list-tab-button">
+        <li [class.ddp-selected]="viewMode === 'editor'" (click)="toggleViewMode('editor')">
+          <a href="javascript:"><em class="ddp-icon-lineage"></em></a>
+          <div class="ddp-ui-tooltip-info">
+            <em class="ddp-icon-view-top"></em>
+            {{'msg.comm.ui.list.editor.view' | translate}}
+          </div>
+        </li>
+        <li [class.ddp-selected]="viewMode === 'list'" (click)="toggleViewMode('list')">
+          <a href="javascript:"><em class="ddp-icon-listgrid"></em></a>
+          <div class="ddp-ui-tooltip-info">
+            <em class="ddp-icon-view-top"></em>
+            {{'msg.comm.ui.list.list.view' | translate}}
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
+  navi -->
+
+  <div class="ddp-type-flow ddp-flow">
+
+    <div class="ddp-view-flow">
+      <!-- lineage -->
+      <!-- 상세정보가 보여질때 ddp-selected 추가 -->
+      <div class="ddp-data-lineage" [ngClass]="{'ddp-selected': (viewMode === 'editor' && isPropertyShow)}" style="overflow-x:hidden;overflow-y:auto;">
+
+        <!-- box -->
+        <div id="graphEditor" class="ddp-box-lineage" [hidden]="viewMode === 'list'">
+        </div>
+        <!-- //box -->
+        <!-- 리스트뷰 -->
+        <app-lineage-list [target]="target" [lineageEdges]="lineageHistory.edges"  *ngIf="viewMode === 'list'"></app-lineage-list>
+        <!-- //리스트뷰 -->
+      </div>
+      <!-- //lineage -->
+
+      <!-- 상세 -->
+      <div class="ddp-box-flowdetail ddp-default" *ngIf="viewMode === 'editor' && isPropertyShow">
+        <div class="ddp-box-in">
+          <a href="javascript:" class="ddp-btn-popup-close" (click)="isPropertyShow=false;"></a>
+          <!-- 파일 이름 -->
+          <!-- edit 버튼 클릭시 ddp-selected 추가 -->
+          <div class="ddp-data-filename">
+            <em [ngClass]="{'ddp-icon-flow-db': selectLineage.type == 'TABLE', 'ddp-icon-flow-sql' : selectLineage.type == 'SQL' }"></em>
+            <span class="ddp-txt-filename">{{selectLineage.name}}</span>
+          </div>
+          <!-- //파일 이름 -->
+
+          <!-- 설명 -->
+          <!-- edit 버튼 클릭시 ddp-selected 추가
+          <div class="ddp-data-explain">
+            <textarea>설명설명설명</textarea>
+            <span class="ddp-txt-explain">설명설명설명
+                <a href="#" class="ddp-link-edit"><em class="ddp-icon-edit2"></em></a>
+            </span>
+          </div>
+          설명 -->
+
+          <div class="ddp-ui-databuttons">
+            <a href="javascript:" class="ddp-btn-buttons4 ddp-full" (click)="detailSearchLineage()">{{'msg.lineage.ui.detail.view'|translate}}</a>
+          </div>
+
+          <!-- part -->
+          <div class="ddp-wrap-part ddp-bg ddp-type">
+
+            <!-- detail -->
+            <dl class="ddp-dl-detail">
+              <dt style="width:115px;">
+                {{'msg.lineage.ui.property.title.type'|translate}}
+              </dt>
+              <dd style="margin-left:-115px;padding-left:115px;">
+                {{selectLineage.type}}
+              </dd>
+            </dl>
+            <!-- //detail -->
+            <!-- detail -->
+            <dl class="ddp-dl-detail" *ngIf="selectLineage.workFlowName">
+              <dt style="width:115px;">
+                {{'msg.lineage.ui.list.title.workflowName' | translate}}
+              </dt>
+              <dd style="margin-left:-115px;padding-left:115px;">
+                {{selectLineage.workFlowName}}
+              </dd>
+            </dl>
+            <!-- //detail -->
+            <!-- detail -->
+            <!--<dl class="ddp-dl-detail" *ngIf="selectLineage.workFlowId">-->
+              <!--<dt>-->
+                <!--{{'msg.lineage.ui.list.title.workflowId' | translate}}-->
+              <!--</dt>-->
+              <!--<dd>-->
+                <!--{{selectLineage.workFlowId}}-->
+              <!--</dd>-->
+            <!--</dl>-->
+            <!-- //detail -->
+            <!-- detail -->
+            <dl class="ddp-dl-detail" *ngIf="selectLineage.sqlFile">
+              <dt style="width:115px;">
+                {{'msg.lineage.ui.list.title.sqlFileName' | translate}}
+              </dt>
+              <dd style="margin-left:-115px;padding-left:115px;">
+                {{selectLineage.sqlFile}}
+              </dd>
+            </dl>
+            <!-- //detail -->
+            <!-- detail -->
+            <dl class="ddp-dl-detail" *ngIf="selectLineage.type == 'TABLE'">
+              <dt style="width:115px;">
+                {{'msg.lineage.ui.property.title.database'|translate}}
+              </dt>
+              <dd style="margin-left:-115px;padding-left:115px;">
+                {{selectLineage.databaseName}}
+              </dd>
+            </dl>
+            <!-- //detail -->
+            <!-- detail -->
+            <dl class="ddp-dl-detail" *ngIf="selectLineage.type == 'TABLE'">
+              <dt style="width:115px;">
+                {{'msg.lineage.ui.property.title.table'|translate}}
+              </dt>
+              <dd style="margin-left:-115px;padding-left:115px;">
+                {{selectLineage.tableName}}
+              </dd>
+            </dl>
+            <!-- //detail -->
+            <!-- 데이터 미리보기 -->
+            <div class="ddp-ui-queryview" *ngIf="selectLineage.type == 'SQL'">
+              <div class="ddp-txt-title">
+                {{'msg.lineage.ui.property.title.query'|translate}}
+              </div>
+              <!--<div class="ddp-box-preview">-->
+                <!--{{selectLineage.name}}-->
+              <!--</div>-->
+              <div class="ddp-box-preview" style="position:relative;height:350px;">
+                <div editor-component
+                     #editor
+                     [(sText)]="selectLineage.sqlString"
+                     [sOptions]="options"
+                     [sReadOnly]="true"
+                     [sShowGutter]="false"
+                     [sAutoUpdateContent]="true">
+                </div>
+              </div>
+            </div>
+            <!-- //데이터 미리보기 -->
+            <!-- 데이터 미리보기 -->
+            <div class="ddp-ui-queryview" *ngIf="selectLineage.type == 'TABLE' && selectLineage.allColumns">
+              <div class="ddp-txt-title">
+                {{'msg.lineage.ui.property.title.columns'|translate}}
+              </div>
+
+              <div class="ddp-box-preview" style="padding:0;" *ngIf="selectLineage.allColumns" >
+                <table class="ddp-table-listview">
+                  <colgroup>
+                    <col width="10%">
+                    <col width="*">
+                  </colgroup>
+                  <tbody>
+                  <tr *ngFor="let item of selectLineage.allColumns">
+                    <td class="ddp-txt-center">
+                      <!--
+                          em.ddp-icon-type-calen
+                          em.ddp-icon-type-ab
+                          em.ddp-icon-type-local
+                          em.ddp-icon-type-sharp
+                          em.ddp-icon-type-account
+                          em.ddp-icon-type-tf
+                          em.ddp-icon-type-maplink
+                          em.ddp-icon-type-float
+                          em.ddp-icon-type-int
+                      -->
+                      <em [ngClass]="{'ddp-icon-type-ab' : item.columnType == 'string', 'ddp-icon-type-calen' : item.columnType == 'timestamp','ddp-icon-type-sharp': item.columnType == 'int','ddp-icon-type-float': item.columnType == 'double'}"></em>
+                    </td>
+                    <td>
+                      {{item.columnName}}
+                    </td>
+                  </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <!--<div class="ddp-box-preview" style="padding:0;" *ngIf="!selectLineage.allColumns" >-->
+                <!--<table class="ddp-table-listview">-->
+                  <!--<colgroup>-->
+                    <!--<col width="10%">-->
+                    <!--<col width="*">-->
+                  <!--</colgroup>-->
+                  <!--<tbody>-->
+                  <!--<tr *ngFor="let item of selectLineage.columns">-->
+                    <!--<td class="ddp-txt-center">-->
+                      <!--<em [ngClass]="{'ddp-icon-type-ab' : item.columnType == 'string', 'ddp-icon-type-calen' : item.columnType == 'timestamp','ddp-icon-type-sharp': item.columnType == 'int','ddp-icon-type-float': item.columnType == 'double'}"></em>-->
+                    <!--</td>-->
+                    <!--<td>-->
+                      <!--{{item.columnName}}-->
+                    <!--</td>-->
+                  <!--</tr>-->
+                  <!--</tbody>-->
+                <!--</table>-->
+              <!--</div>-->
+            </div>
+
+            <div class="ddp-data-detail" *ngIf="selectLineage.type == 'TABLE' && (selectLineage.detailed || selectLineage.storage)">
+              <div class="ddp-label-detail">{{'msg.lineage.ui.detail.detail' | translate}}</div>
+              <dl class="ddp-dl-detail2" *ngFor="let item of selectLineage.detailed" style="padding:0;">
+                <dt *ngIf="item.column1 !='' && item.column2!='null'" style="padding-bottom:5px;">
+                {{item.column1}}
+                </dt>
+                <dd *ngIf="item.column1 !='' && item.column2!='null'" style="padding-bottom:5px;">
+                  {{item.column2}}
+                </dd>
+                <dt *ngIf="item.column1 ==''" style="padding-bottom:5px;">
+                  {{item.column2}}
+                </dt>
+                <dd *ngIf="item.column1 ==''" style="padding-bottom:5px;">
+                  {{item.column3}}
+                </dd>
+              </dl>
+              <dl class="ddp-dl-detail2" *ngFor="let item of selectLineage.storage" style="padding:0;">
+                <dt *ngIf="item.column1 !='' && item.column2!='null'" style="padding-bottom:5px;">
+                  {{item.column1}}
+                </dt>
+                <dd *ngIf="item.column1 !='' && item.column2!='null'" style="padding-bottom:5px;">
+                  {{item.column2}}
+                </dd>
+                <dt *ngIf="item.column1 ==''" style="padding-bottom:5px;">
+                  {{item.column2}}
+                </dt>
+                <dd *ngIf="item.column1 ==''" style="padding-bottom:5px;">
+                  {{item.column3}}
+                </dd>
+              </dl>
+            </div>
+          </div>
+          <!-- //part -->
+
+          <div class="ddp-wrap-date" *ngIf="selectLineage.timestamp">
+            <dl class="ddp-dl-detail ddp-dl-date">
+              <dt>
+                생성
+              </dt>
+              <dd>
+                {{selectLineage.timestamp | date:'yyyy-MM-dd HH:mm'}}
+              </dd>
+            </dl>
+          </div>
+
+        </div>
+
+      </div>
+      <!-- //상세 -->
+
+    </div>
+
+  </div>

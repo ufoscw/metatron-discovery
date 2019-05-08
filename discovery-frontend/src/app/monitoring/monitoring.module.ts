@@ -22,12 +22,17 @@ import { JobLogComponent } from './audit/job-log/job-log.component';
 import { LogStatisticsComponent } from './audit/log-statistics/log-statistics.component';
 import { LogStatisticsDetailComponent } from './audit/log-statistics/log-statistics.detail.component';
 import { JobDetailComponent } from './audit/job-log/component/job-detail/job-detail.component';
+import { LineageComponent } from './lineage/lineage.component';
+import { LineageDetailComponent } from './lineage/lineage-detail/lineage-detail.component';
+import { LineageListComponent } from './lineage/lineage-list/lineage-list.component';
+import { LineageService } from './lineage/service/lineage.service';
 
 const monitoringRoutes: Routes = [
   { path: '', component: JobLogComponent },
   { path: 'statistics', component: LogStatisticsComponent },
   { path: 'audit', component: JobLogComponent },
-  { path: 'audit/:id', component: JobDetailComponent }
+  { path: 'audit/:id', component: JobDetailComponent },
+  { path: 'lineage', component: LineageComponent }
 ];
 
 @NgModule({
@@ -40,10 +45,14 @@ const monitoringRoutes: Routes = [
   declarations: [
     LogStatisticsComponent,
     JobLogComponent,
-    LogStatisticsDetailComponent
+    LogStatisticsDetailComponent,
+    LineageComponent,
+    LineageDetailComponent,
+    LineageListComponent
   ],
   providers: [
-    AuditService
+    AuditService,
+    LineageService
   ]
 })
 export class MonitoringModule { }

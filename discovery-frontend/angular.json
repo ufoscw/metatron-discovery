@@ -97,7 +97,9 @@
               "src/lib/vis/vis.js",
               "src/lib/split/split.js",
               "src/lib/plupload/plupload.full.min.js",
-              "src/lib/openlayers/ol.js"
+              "src/lib/openlayers/ol.js",
+              "src/lib/grapheditor/js/grapheditor.js",
+              "src/lib/grapheditor/js/sanitizer.min.js"
             ]
           },
           "configurations": {
