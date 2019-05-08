@@ -12,26 +12,9 @@
  * limitations under the License.
  */
 
-import {
-  Component,
-  ElementRef,
-  EventEmitter,
-  Injector,
-  Input,
-  OnDestroy,
-  OnInit,
-  Output,
-  QueryList,
-  ViewChildren
-} from '@angular/core';
+import {Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output, QueryList, Renderer, ViewChildren} from '@angular/core';
 import {AbstractComponent} from '../../../../common/component/abstract.component';
-import {
-  ConnectionType,
-  Datasource,
-  FieldFormat,
-  FieldFormatType,
-  FieldRole, LogicalType
-} from '../../../../domain/datasource/datasource';
+import {ConnectionType, Datasource, FieldFormat, FieldFormatType} from '../../../../domain/datasource/datasource';
 import * as _ from 'lodash';
 import {MetadataService} from '../../../metadata/service/metadata.service';
 import {MetadataModelService} from '../../../metadata/service/metadata.model.service';
@@ -111,6 +94,8 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
 
   public fieldDataList;
 
+  public isSaveInvalid: boolean = false;
+
   /**
    * Code Table Preview Layer
    */
@@ -130,9 +115,9 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
   @ViewChildren(DatetimeValidPopupComponent)
   private readonly _datetimePopupComponentList: QueryList<DatetimeValidPopupComponent>;
 
-  @Output()
+  @Output('chooseCodeTableEvent')
   private readonly _chooseCodeTableEvent = new EventEmitter();
-  @Output()
+  @Output('chooseDictionaryEvent')
   private readonly _chooseDictionaryEvent = new EventEmitter();
 
   /**
@@ -153,6 +138,7 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
   constructor(
     protected element: ElementRef,
     protected injector: Injector,
+    public renderer: Renderer,
     public metaDataModelService: MetadataModelService,
     public constantService: ConstantService,
     private _columnDictionaryService: ColumnDictionaryService,
@@ -190,11 +176,10 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
 
   public onClickInfoIcon(metadataColumn: MetadataColumn, index: number): void {
     if (MetadataColumn.isTypeIsTimestamp(metadataColumn)) {
-      if (metadataColumn['typeListFl']) {
-        metadataColumn['typeListFl'] = false;
+      if (metadataColumn[ 'typeListFl' ]) {
+        metadataColumn[ 'typeListFl' ] = false;
       }
       metadataColumn.checked = true;
-      metadataColumn.format.isShowTimestampValidPopup = true;
       this._datetimePopupComponentList.toArray()[ index ].init();
     }
   }
@@ -248,25 +233,21 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
     });
   }
 
-  public isSaveInvalid: boolean = false;
-
   /**
    * Save changed fields click event
    */
   public onClickSave(): void {
 
-    // const datetimeValidPopupComponents: DatetimeValidPopupComponent[]
-    //   = this._datetimePopupComponentList
-    //   .filter(datetimePopupComponent => _.negate(_.isNil)(datetimePopupComponent.fieldFormat) && _.negate(_.isNil)(datetimePopupComponent.fieldFormat.isValidFormat))
-    //   .filter(datetimeValidPopupComponent => !datetimeValidPopupComponent.fieldFormat.isValidFormat);
-    //
-    // if (datetimeValidPopupComponents.length > 0) {
-    //   this.isSaveInvalid = true;
-    //   return;
-    // }
-    if (this.isSaveInvalid !== true) {
-      this._updateColumnSchema();
+    const datetimeValidPopupComponents: DatetimeValidPopupComponent[]
+      = this._datetimePopupComponentList
+      .filter(datetimePopupComponent => _.negate(_.isNil)(datetimePopupComponent.fieldFormat))
+      .filter(datetimeValidPopupComponent => !datetimeValidPopupComponent.fieldFormat.isValidFormat);
+
+    if (datetimeValidPopupComponents.length > 0) {
+      this.isSaveInvalid = true;
+      return;
     }
+    this._updateColumnSchema();
   }
 
   /**
@@ -315,7 +296,7 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
         this.setIsExistErrorInFieldListFlag();
       }
     }
-    metadataColumn['typeListFl'] = false;
+    metadataColumn[ 'typeListFl' ] = false;
   }
 
   /**
@@ -443,7 +424,14 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
    * Set exist error in field list flag
    */
   public setIsExistErrorInFieldListFlag(): void {
-    this.isSaveInvalid = this.columnList.some(field =>  field.role !== Type.Role.TIMESTAMP && (field.type === Type.Logical.TIMESTAMP && !field.format.isValidFormat));
+
+    const datetimeValidPopupComponents: DatetimeValidPopupComponent[]
+      = this._datetimePopupComponentList
+      .filter(datetimePopupComponent => _.negate(_.isNil)(datetimePopupComponent.fieldFormat))
+      .filter(datetimeValidPopupComponent => !datetimeValidPopupComponent.fieldFormat.isValidFormat);
+
+    // this.isSaveInvalid = this.columnList.some(field =>  field.role !== Type.Role.TIMESTAMP && (field.type === Type.Logical.TIMESTAMP && !field.format.isValidFormat));
+    this.isSaveInvalid = datetimeValidPopupComponents.length > 0;
   }
 
   public isLogicalTypesLayerActivation(metadataColumn: MetadataColumn) {
@@ -677,6 +665,12 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
     return new Promise((resolve, reject) => {
       return this._metaDataService.getColumnSchemaListInMetaData(this.metaDataModelService.getMetadata().id)
         .then((result) => {
+          result.map((field) => {
+            if (MetadataColumn.isTypeIsTimestamp(field)) {
+              field.format.isValidFormat = true;
+            }
+            return field;
+          });
           this._hideCurrentTime(result);
           this._saveColumnDataOriginal();
           resolve();
@@ -907,5 +901,40 @@ export class ColumnSchemaComponent extends AbstractComponent implements OnInit, 
 
   private isMetadataSourceTypeIsStaging() {
     return Metadata.isSourceTypeIsStaging(this.metaDataModelService.getMetadata().sourceType);
+  }
+
+  @ViewChildren('metadataColumnSchemaDescriptionInputs')
+  private metadataColumnSchemaDescriptionInputs: QueryList<ElementRef>;
+
+  @ViewChildren('metadataColumnSchemaDescriptionTds')
+  private metadataColumnSchemaDescriptionTds: QueryList<ElementRef>;
+
+  public focusMetadataColumnSchemaDescriptionInput(index: number, metadataColumn: MetadataColumn) {
+
+    if (this.isSelectedMetadataColumnInColumnDictionaryDefined(metadataColumn)) {
+      return;
+    }
+
+    this.metadataColumnSchemaDescriptionInputs.toArray()[ index ].nativeElement.focus();
+    this.renderer.setElementClass(this.metadataColumnSchemaDescriptionTds.toArray()[ index ].nativeElement, 'ddp-selected', true);
+  }
+
+  public blurMetadataColumnSchemaDescriptionInput(index: number) {
+    this.renderer.setElementClass(this.metadataColumnSchemaDescriptionTds.toArray()[ index ].nativeElement, 'ddp-selected', false);
+  }
+
+  @ViewChildren('metadataColumnSchemaNameInputs')
+  private metadataColumnSchemaNameInputs: QueryList<ElementRef>;
+
+  @ViewChildren('metadataColumnSchemaNameTds')
+  private metadataColumnSchemaNameTds: QueryList<ElementRef>;
+
+  public focusMetadataColumnSchemaNameInput(index: number) {
+    this.metadataColumnSchemaNameInputs.toArray()[ index ].nativeElement.focus();
+    this.renderer.setElementClass(this.metadataColumnSchemaNameTds.toArray()[ index ].nativeElement, 'ddp-selected', true);
+  }
+
+  public blurMetadataColumnSchemaNameInput(index: number) {
+    this.renderer.setElementClass(this.metadataColumnSchemaNameTds.toArray()[ index ].nativeElement, 'ddp-selected', false);
   }
 }

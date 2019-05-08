@@ -1968,6 +1968,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
         && feature.getProperties()['layerNum'] == -5)) {
       // Disable tooltip
       this.tooltipInfo.enable = false;
+      this.changeDetect.detectChanges();
       if (!_.isUndefined(this.tooltipLayer) && this.tooltipLayer.length > 0) {
         this.tooltipLayer.setPosition(undefined);
       }
@@ -2491,6 +2492,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit {
 
       // Option panel change cancel, not current shelf change
       if (!this.drawByType || String(this.drawByType) == "" || (EventType.CHANGE_PIVOT == this.drawByType && uiOption.layerNum != index)
+        || EventType.FILTER == this.drawByType
         || isNullOrUndefined(field)) {
         continue;
       }

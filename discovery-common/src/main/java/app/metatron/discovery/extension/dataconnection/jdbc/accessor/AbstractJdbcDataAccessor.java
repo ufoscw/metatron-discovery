@@ -189,12 +189,14 @@ public abstract class AbstractJdbcDataAccessor implements JdbcAccessor {
   @Override
   public void useDatabase(String catalog, String database) {
     String useQuery = dialect.getUseDatabaseQuery(connectionInfo, database);
-    try{
-      execute(this.getConnection(), useQuery);
-    } catch (Exception e){
-      LOGGER.error("Fail to Use database : {}", e.getMessage());
-      throw new JdbcDataConnectionException(JdbcDataConnectionErrorCodes.INVALID_QUERY_ERROR_CODE,
-                                            "Fail to Use database : " + e.getMessage());
+    if(StringUtils.isNotEmpty(useQuery)){
+      try{
+        execute(this.getConnection(), useQuery);
+      } catch (Exception e){
+        LOGGER.error("Fail to Use database : {}", e.getMessage());
+        throw new JdbcDataConnectionException(JdbcDataConnectionErrorCodes.INVALID_QUERY_ERROR_CODE,
+                                              "Fail to Use database : " + e.getMessage());
+      }
     }
   }
 
@@ -206,14 +208,18 @@ public abstract class AbstractJdbcDataAccessor implements JdbcAccessor {
     ResultSet rs = null;
     try {
       conn = this.getConnection();
-      rs = conn.getMetaData().getSchemas();
+
+      String schemaPatternParam = schemaPattern;
+      if(StringUtils.isNotEmpty(schemaPattern)){
+        schemaPatternParam = "%" + schemaPattern + "%";
+      }
+      rs = conn.getMetaData().getSchemas(catalog, schemaPatternParam);
 
       // 1. TABLE_SCHEM String => schema name
       // 2. TABLE_CATALOG String => catalog name (may be null)
       while (rs.next()) {
         dataBaseNames.add(rs.getString(1));
       }
-
     } catch (Exception e) {
       LOGGER.error("Fail to get list of schema : {}", e.getMessage());
       throw new JdbcDataConnectionException(JdbcDataConnectionErrorCodes.INVALID_QUERY_ERROR_CODE,
@@ -431,8 +437,10 @@ public abstract class AbstractJdbcDataAccessor implements JdbcAccessor {
   public Map<String, Object> showTableDescription(String catalog, String schema, String tableName) {
     try {
       String tableDescQuery = dialect.getTableDescQuery(connectionInfo, catalog, schema, tableName);
-      return executeQueryForMap(this.getConnection(), tableDescQuery);
-
+      if(StringUtils.isNotEmpty(tableDescQuery)){
+        return executeQueryForMap(this.getConnection(), tableDescQuery);
+      }
+      return null;
     } catch (Exception e) {
       LOGGER.error("Fail to get desc of table : {}", e.getMessage());
       throw new JdbcDataConnectionException(JdbcDataConnectionErrorCodes.INVALID_QUERY_ERROR_CODE,

@@ -62,8 +62,8 @@ export class DbCompleteComponent extends AbstractPopupComponent implements OnIni
   @Output()
   public stepChange: EventEmitter<string> = new EventEmitter();
 
-  @Output('dbComplete')
-  public dbComplete = new EventEmitter();
+  @Output()
+  public onComplete: EventEmitter<any> = new EventEmitter();
 
   // create complete data
   public createCompleteData: CreateSourceCompleteData;
@@ -245,18 +245,22 @@ export class DbCompleteComponent extends AbstractPopupComponent implements OnIni
         // 워크스페이스 매핑
         this.datasourceService.addDatasourceWorkspaces(result.id, [workspace['id']])
           .then(() => {
-            // link datasource detail (#505)
-            this.router.navigate(['/management/storage/datasource', result.id]);
-            // close
-            this.step = '';
-            this.dbComplete.emit(this.step);
+            this.onComplete.emit();
+            setTimeout(() => {
+              // link datasource detail (#505)
+              this.router.navigate(['/management/storage/datasource', result.id]);
+              // close
+              this.close();
+            }, 250 );
           })
           .catch(() => {
-            // link datasource detail (#505)
-            this.router.navigate(['/management/storage/datasource', result.id]);
-            // close
-            this.step = '';
-            this.dbComplete.emit(this.step);
+            this.onComplete.emit();
+            setTimeout(() => {
+              // link datasource detail (#505)
+              this.router.navigate(['/management/storage/datasource', result.id]);
+              // close
+              this.close();
+            }, 250 );
           });
       })
       .catch((error) => {
