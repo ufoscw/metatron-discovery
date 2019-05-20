@@ -54,6 +54,12 @@ export class DataflowDetail2Component extends AbstractPopupComponent {
   @ViewChild(CreateSnapshotPopup)
   private createSnapshotPopup : CreateSnapshotPopup;
 
+  @ViewChild('dfName')
+  private dfName: ElementRef;
+
+  @ViewChild('dfDesc')
+  private dfDesc: ElementRef;
+
   // 타입별 아이콘 정보
   private symbolInfo: any;
 
@@ -75,14 +81,6 @@ export class DataflowDetail2Component extends AbstractPopupComponent {
   // 노드간 링크 리스트
   private chartLinks: any[] = [];
 
-  // Change Detect
-  public changeDetect: ChangeDetectorRef;
-
-  @ViewChild('dfName')
-  private dfName: ElementRef;
-  @ViewChild('dfDesc')
-  private dfDesc: ElementRef;
-
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -98,6 +96,9 @@ export class DataflowDetail2Component extends AbstractPopupComponent {
 
   @Input()
   public selectedDataSet: PrDataset;
+
+  // Change Detect
+  public changeDetect: ChangeDetectorRef;
 
   // 사용된 dataflow layer show/hide
   public isDataflowsShow: boolean = false;
@@ -157,6 +158,7 @@ export class DataflowDetail2Component extends AbstractPopupComponent {
     private dfModelService : DataflowModelService,
     private commonLocation: Location,
     private activatedRoute: ActivatedRoute,
+    private _location: Location,
     protected elementRef: ElementRef,
     protected injector: Injector) {
 
@@ -230,7 +232,7 @@ export class DataflowDetail2Component extends AbstractPopupComponent {
    * 뒤로가기
    * */
   public close() {
-    this.router.navigate(['/management/datapreparation/dataflow']);
+    this._location.back();
   }
 
   // 다른 데이터 플로우로 이동
@@ -1158,60 +1160,60 @@ export class DataflowDetail2Component extends AbstractPopupComponent {
    */
   private _initialiseChartValues() {
 
-    const SVG_LOCATION: string = 'image://' + window.location.origin + '/assets/images/datapreparation/svg/icon_';
+    const SVG_LOCATION: string = 'image://' + window.location.origin + '/assets/images/datapreparation/png/icon_';
 
     this.symbolInfo = {
         CSV : {
-          DEFAULT: SVG_LOCATION + 'file_csv.svg',
-          SELECTED: SVG_LOCATION + 'file_csv_focus.svg',
+          DEFAULT: SVG_LOCATION + 'file_csv.png',
+          SELECTED: SVG_LOCATION + 'file_csv_focus.png',
         },
         EXCEL : {
-          DEFAULT: SVG_LOCATION + 'file_xls.svg',
-          SELECTED: SVG_LOCATION + 'file_xls_focus.svg',
+          DEFAULT: SVG_LOCATION + 'file_xls.png',
+          SELECTED: SVG_LOCATION + 'file_xls_focus.png',
         },
         JSON : {
-          DEFAULT: SVG_LOCATION + 'file_json.svg',
-          SELECTED: SVG_LOCATION + 'file_json_focus.svg',
+          DEFAULT: SVG_LOCATION + 'file_json.png',
+          SELECTED: SVG_LOCATION + 'file_json_focus.png',
         },
         TXT : {
-          DEFAULT: SVG_LOCATION + 'file_txt.svg',
-          SELECTED: SVG_LOCATION + 'file_txt_focus.svg',
+          DEFAULT: SVG_LOCATION + 'file_txt.png',
+          SELECTED: SVG_LOCATION + 'file_txt_focus.png',
         },
         MYSQL: {
-          DEFAULT: SVG_LOCATION + 'db_mysql.svg',
-          SELECTED: SVG_LOCATION + 'db_mysql_focus.svg',
+          DEFAULT: SVG_LOCATION + 'db_mysql.png',
+          SELECTED: SVG_LOCATION + 'db_mysql_focus.png',
         },
         HIVE: {
-          DEFAULT: SVG_LOCATION + 'db_hive.svg',
-          SELECTED: SVG_LOCATION + 'db_hive_focus.svg',
+          DEFAULT: SVG_LOCATION + 'db_hive.png',
+          SELECTED: SVG_LOCATION + 'db_hive_focus.png',
         },
         PRESTO: {
-          DEFAULT: SVG_LOCATION + 'db_presto.svg',
-          SELECTED: SVG_LOCATION + 'db_presto_focus.svg',
+          DEFAULT: SVG_LOCATION + 'db_presto.png',
+          SELECTED: SVG_LOCATION + 'db_presto_focus.png',
         },
         DRUID: {
-          DEFAULT: SVG_LOCATION + 'db_druid.svg',
-          SELECTED: SVG_LOCATION + 'db_druid_focus.svg',
+          DEFAULT: SVG_LOCATION + 'db_druid.png',
+          SELECTED: SVG_LOCATION + 'db_druid_focus.png',
         },
         POSTGRESQL: {
-          DEFAULT: SVG_LOCATION + 'db_post.svg',
-          SELECTED: SVG_LOCATION + 'db_post_focus.svg',
+          DEFAULT: SVG_LOCATION + 'db_post.png',
+          SELECTED: SVG_LOCATION + 'db_post_focus.png',
         },
         ORACLE: {
-          DEFAULT: SVG_LOCATION + 'db_oracle.svg',
-          SELECTED: SVG_LOCATION + 'db_oracle_focus.svg',
+          DEFAULT: SVG_LOCATION + 'db_oracle.png',
+          SELECTED: SVG_LOCATION + 'db_oracle_focus.png',
         },
         TIBERO: {
-          DEFAULT: SVG_LOCATION + 'db_tibero.svg',
-          SELECTED: SVG_LOCATION + 'db_tibero_focus.svg',
+          DEFAULT: SVG_LOCATION + 'db_tibero.png',
+          SELECTED: SVG_LOCATION + 'db_tibero_focus.png',
         },
         STAGING_DB: {
-          DEFAULT: SVG_LOCATION + 'db_hive.svg',
-          SELECTED: SVG_LOCATION + 'db_hive_focus.svg'
+          DEFAULT: SVG_LOCATION + 'db_hive.png',
+          SELECTED: SVG_LOCATION + 'db_hive_focus.png'
         },
         WRANGLED: {
-          DEFAULT: SVG_LOCATION + 'dataset_wrangled_.svg',
-          SELECTED: SVG_LOCATION + 'dataset_wrangled_focus.svg',
+          DEFAULT: SVG_LOCATION + 'dataset_wrangled_.png',
+          SELECTED: SVG_LOCATION + 'dataset_wrangled_focus.png',
         }
 
     };
