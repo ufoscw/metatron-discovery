@@ -26,6 +26,9 @@ import {CriterionComponent} from "../component/criterion/criterion.component";
 import {Criteria} from "../../domain/datasource/criteria";
 import {ActivatedRoute} from "@angular/router";
 import {Alert} from "../../common/util/alert.util";
+import {isNullOrUndefined} from "util";
+import * as _ from 'lodash';
+import {StorageService} from "../service/storage.service";
 
 @Component({
   selector: 'app-data-connection',
@@ -47,9 +50,6 @@ export class DataConnectionComponent extends AbstractComponent implements OnInit
   @ViewChild(DeleteModalComponent)
   private deleteModalComponent: DeleteModalComponent;
 
-  // 커넥션 생성 step
-  public connectionStep: string;
-
   // connection list
   public connectionList: Dataconnection[] = [];
 
@@ -61,6 +61,7 @@ export class DataConnectionComponent extends AbstractComponent implements OnInit
 
   // Constructor
   constructor(private dataconnectionService: DataconnectionService,
+              private storageService: StorageService,
               private activatedRoute: ActivatedRoute,
               protected elementRef: ElementRef,
               protected injector: Injector) {
@@ -85,6 +86,10 @@ export class DataConnectionComponent extends AbstractComponent implements OnInit
           // if exist search param in URL
           if (isExistSearchParams) {
             paramKeys.forEach((key) => {
+              // #1539 call by metadata create step
+              if (key === 'isCreateMode') {
+                this.onClickCreateConnection();
+              }
               if (key === 'size') {
                 this.page.size = params['size'];
               } else if (key === 'page') {
@@ -99,17 +104,20 @@ export class DataConnectionComponent extends AbstractComponent implements OnInit
                 searchParams[key] = params[key].split(',');
               }
             });
+            // TODO 추후 criterion component로 이동
+            delete searchParams['pseudoParam'];
+            // init criterion search param
+            this.criterionComponent.initSearchParams(searchParams);
           }
-
-          // TODO 추후 criterion component로 이동
-          delete searchParams['pseudoParam'];
-          // init criterion search param
-          this.criterionComponent.initSearchParams(searchParams);
           // set connection list
           this._setConnectionList();
         }));
       })
       .catch(reason => this.commonExceptionHandler(reason));
+  }
+
+  isEmptyList(): boolean {
+    return this.connectionList.length === 0;
   }
 
   /**
@@ -239,29 +247,11 @@ export class DataConnectionComponent extends AbstractComponent implements OnInit
    * @returns {string}
    */
   public getConnectionImplementorLabel(implementor: ImplementorType): string {
-    switch (implementor) {
-      case ImplementorType.MYSQL:
-        return 'MySQL';
-      case ImplementorType.ORACLE:
-        return 'Oracle';
-      case ImplementorType.TIBERO:
-        return 'Tibero';
-      case ImplementorType.HIVE:
-        return 'Hive';
-      case ImplementorType.POSTGRESQL:
-        return 'PostgreSQL';
-      case ImplementorType.PRESTO:
-        return 'Presto';
-      case ImplementorType.MSSQL:
-        return 'MsSQL';
-      case ImplementorType.DRUID:
-        return 'Druid';
-      case ImplementorType.STAGE:
-        return 'StagingDB';
-      case ImplementorType.FILE:
-        return 'File';
-      default:
-        return implementor.toString();
+    const jdbc = this.storageService.findConnectionType(implementor);
+    if (_.isNil(jdbc)) {
+      return implementor.toString();
+    } else {
+      return jdbc.name;
     }
   }
 
@@ -302,6 +292,16 @@ export class DataConnectionComponent extends AbstractComponent implements OnInit
     // get connection list
     this.dataconnectionService.getConnectionList(this.page.page, this.page.size, this.selectedContentSort.key + ',' + this.selectedContentSort.sort, this._getConnectionParams())
       .then((result) => {
+
+        // 현재 페이지에 아이템이 없다면 전 페이지를 불러온다.
+        if (this.page.page > 0 &&
+          isNullOrUndefined(result['_embedded']) ||
+          (!isNullOrUndefined(result['_embedded']) && result['_embedded'].connections.length === 0))
+        {
+          this.page.page = result.page.number - 1;
+          this._setConnectionList();
+        }
+
         // set page result
         this.pageResult = result['page'];
         // set connection list
@@ -334,6 +334,10 @@ export class DataConnectionComponent extends AbstractComponent implements OnInit
     // if search keyword not empty
     if (StringUtil.isNotEmpty(this.searchKeyword)) {
       params['containsText'] = this.searchKeyword.trim();
+    }
+    // remove isCreateMode property
+    if (!_.isNil(params['isCreateMode'])) {
+      delete params['isCreateMode'];
     }
     return params;
   }

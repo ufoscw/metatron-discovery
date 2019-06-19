@@ -1311,6 +1311,11 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       .catch((error) => {
         this.isExecutingQuery = false;
         this.loadingBar.hide();
+
+        if(error.code && error.code === "WB0002") {
+          this.stomp.initAndConnect();
+        }
+
         if (!isUndefined(error.details) && this._executeSqlReconnectCnt <= 5) {
           this.webSocketCheck(() => {
             this.setExecuteSql(param);
@@ -1406,6 +1411,11 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       .catch((error) => {
         this.isExecutingQuery = false;
         this.loadingBar.hide();
+
+        if(error.code && error.code === "WB0002") {
+          this.stomp.initAndConnect();
+        }
+
         if (!isUndefined(error.details) && this._executeSqlReconnectCnt <= 5) {
           this.webSocketCheck(() => {
             this.retryQuery(item);
@@ -1906,7 +1916,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
           this.openAccessDeniedConfirm();
         }
 
-        // this.restoreQueryResultPreviousState(data.queryEditors);
+        this.restoreQueryResultPreviousState(data.queryEditors);
       });
 
     }).catch((error) => {
