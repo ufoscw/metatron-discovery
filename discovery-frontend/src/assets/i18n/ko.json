@@ -4110,10 +4110,19 @@
   "msg.explore.ui.title" : "데이터 탐색",
   "msg.explore.ui.tab.catalogs" : "카탈로그",
   "msg.explore.ui.tab.tags" : "태그",
+  "msg.explore.ph.tab.catalogs.search" : "카탈로그 검색",
+  "msg.explore.ph.tab.tags.search" : "태그 검색",
+  "msg.explore.ui.search.range.all" : "전체",
+  "msg.explore.ui.search.range.data.name" : "데이터 이름",
+  "msg.explore.ui.search.range.description" : "설명",
+  "msg.explore.ui.search.range.creator" : "등록자",
+  "msg.explore.ph.search" : "메타데이터 검색",
   "msg.explore.ui.list.recommended" : "추천 데이터",
   "msg.explore.ui.list.popular" : "가장 인기있는",
   "msg.explore.ui.list.updated" : "신규 또는 수정된",
   "msg.explore.ui.list.data.creator" : "데이터 등록자",
   "msg.explore.ui.list.favorite.my" : "즐겨찾기",
-  "msg.explore.ui.lnb.folding" : "폴딩"
+  "msg.explore.ui.lnb.folding" : "폴딩",
+  "msg.explore.ui.list.content.total" : "<strong>{{totalElements}}</strong>건의 검색결과가 존재합니다",
+  "msg.explore.ui.list.content.total.searched" : "<span class=\"ddp-txt-search\">'{{searchedKeyword}}'</span>에 대한 <strong>{{totalElements}}</strong>건의 검색결과가 존재합니다"
 }

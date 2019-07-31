@@ -4109,10 +4109,19 @@
   "msg.explore.ui.title" : "Explore Data",
   "msg.explore.ui.tab.catalogs" : "Catalogs",
   "msg.explore.ui.tab.tags" : "Tags",
+  "msg.explore.ph.tab.catalogs.search" : "Search catalog",
+  "msg.explore.ph.tab.tags.search" : "Search tag",
+  "msg.explore.ui.search.range.all" : "All",
+  "msg.explore.ui.search.range.data.name" : "Data Name",
+  "msg.explore.ui.search.range.description" : "Description",
+  "msg.explore.ui.search.range.creator" : "Creator",
+  "msg.explore.ph.search" : "Searching meta data",
   "msg.explore.ui.list.recommended" : "Recommended for you",
   "msg.explore.ui.list.popular" : "Popular data",
   "msg.explore.ui.list.updated" : "New or Update",
   "msg.explore.ui.list.data.creator" : "Data creator",
   "msg.explore.ui.list.favorite.my" : "My favorite",
-  "msg.explore.ui.lnb.folding" : "Folding"
+  "msg.explore.ui.lnb.folding" : "Folding",
+  "msg.explore.ui.list.content.total" : "There are <strong>{{totalElements}}</strong> lists",
+  "msg.explore.ui.list.content.total.searched" : "There are <strong>{{totalElements}}</strong> lists by <span class=\"ddp-txt-search\">'{{searchedKeyword}}'</span>"
 }
